@@ -58,7 +58,7 @@ namespace MPStore.Admin.Views
                 NameEntry.Text = store.Name ?? string.Empty;
                 SlugEntry.Text = store.Slug ?? string.Empty;
                 DescriptionEditor.Text = store.Description ?? string.Empty;
-                LogoUrlEntry.Text = store.LogoPath ?? string.Empty;
+                LogoUrlEntry.Text = string.Empty;
                 IsActiveSwitch.IsToggled = store.IsActive;
                 IsActiveTextLabel.Text = store.IsActive ? "المتجر نشط" : "المتجر متوقف";
             }
@@ -132,9 +132,9 @@ namespace MPStore.Admin.Views
 
                 var result = await _storesService.UpdateStoreAsync(request);
 
-                if (!result)
+                if (!result.IsSuccess)
                 {
-                    ShowMessage("فشل حفظ التعديلات.");
+                    ShowMessage(result.Message);
                     return;
                 }
 

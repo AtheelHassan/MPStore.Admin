@@ -11,7 +11,8 @@
 
         <Grid Grid.Row="0"
               Padding="20,18,20,12"
-              ColumnDefinitions="*,Auto"
+              ColumnDefinitions="*,Auto,Auto"
+              ColumnSpacing="10"
               BackgroundColor="White">
 
             <VerticalStackLayout Spacing="4">
@@ -35,6 +36,17 @@
                     FontAttributes="Bold"
                     VerticalOptions="Center"
                     Clicked="OnAddStoreClicked" />
+
+            <Button Grid.Column="2"
+                    Text="تسجيل خروج"
+                    HeightRequest="46"
+                    Padding="18,0"
+                    CornerRadius="14"
+                    BackgroundColor="#DC2626"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center"
+                    Clicked="OnLogoutClicked" />
         </Grid>
 
         <Grid Grid.Row="1"

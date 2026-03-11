@@ -1,146 +1,153 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
 
-namespace MPStore.Admin.Views
+namespace MPStore.Admin.Views;
+
+public partial class StoresList : ContentPage, INotifyPropertyChanged
 {
-    public partial class StoresList : ContentPage
+    private readonly StoresService _storesService;
+    private bool _isBusy;
+
+    public ObservableCollection<StoreListItemViewModel> Stores { get; } = new();
+
+    public ICommand EditCommand { get; }
+    public ICommand ViewCommand { get; }
+
+    public new event PropertyChangedEventHandler? PropertyChanged;
+
+    public StoresList(StoresService storesService)
     {
-        private readonly StoresService _storesService;
-        private bool _isBusy;
+        InitializeComponent();
 
-        public ObservableCollection<StoreItemViewModel> Stores { get; } = new();
+        _storesService = storesService;
+        BindingContext = this;
 
-        public ICommand EditCommand { get; }
-        public ICommand ViewCommand { get; }
+        StoresCollectionView.ItemsSource = Stores;
 
-        public StoresList(StoresService storesService)
+        EditCommand = new Command<StoreListItemViewModel>(async item => await GoToEditAsync(item));
+        ViewCommand = new Command<StoreListItemViewModel>(async item => await GoToEditAsync(item));
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadStoresAsync();
+    }
+
+    private async Task LoadStoresAsync()
+    {
+        if (_isBusy)
+            return;
+
+        try
         {
-            InitializeComponent();
+            _isBusy = true;
+            SetLoading(true);
+            ShowMessage(null);
 
-            _storesService = storesService;
+            Stores.Clear();
 
-            EditCommand = new Command<StoreItemViewModel>(async item => await OnEditStore(item));
-            ViewCommand = new Command<StoreItemViewModel>(async item => await OnViewStore(item));
+            var result = await _storesService.GetStoresAsync();
 
-            BindingContext = this;
-            StoresCollectionView.ItemsSource = Stores;
-        }
-
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            if (Stores.Count == 0)
-                await LoadStoresAsync();
-        }
-
-        private async Task LoadStoresAsync()
-        {
-            if (_isBusy)
+            if (result == null || result.Count == 0)
                 return;
 
-            try
-            {
-                SetBusy(true);
-                HideMessage();
-
-                var result = await _storesService.GetStoresAsync();
-
-                Stores.Clear();
-
-                if (result == null || result.Count == 0)
-                    return;
-
-                foreach (var store in result)
-                {
-                    Stores.Add(new StoreItemViewModel
-                    {
-                        StoreId = store.Id,
-                        Name = store.Name,
-                        Slug = store.Slug,
-                        Description = string.IsNullOrWhiteSpace(store.Description) ? "لا يوجد وصف" : store.Description,
-                        IsActive = store.IsActive,
-                        IsActiveText = store.IsActive ? "نشط" : "متوقف",
-                        CreatedAt = store.CreatedAtUtc,
-                        CreatedAtText = store.CreatedAtUtc == default
-                            ? "تاريخ غير متوفر"
-                            : $"تاريخ الإنشاء: {store.CreatedAtUtc:yyyy/MM/dd}"
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowMessage($"تعذر تحميل المتاجر: {ex.Message}");
-            }
-            finally
-            {
-                SetBusy(false);
-            }
+            foreach (var store in result)
+                Stores.Add(new StoreListItemViewModel(store));
         }
-
-        private async void OnRefreshClicked(object sender, EventArgs e)
+        catch (Exception ex)
         {
-            await LoadStoresAsync();
+            ShowMessage($"تعذر تحميل المتاجر: {ex.Message}");
         }
-
-        private async void OnAddStoreClicked(object sender, EventArgs e)
+        finally
         {
-            await DisplayAlert("إضافة متجر", "سيتم ربط صفحة إضافة متجر لاحقًا.", "موافق");
+            SetLoading(false);
+            _isBusy = false;
         }
+    }
 
-        private async Task OnEditStore(StoreItemViewModel? item)
+    private async Task GoToEditAsync(StoreListItemViewModel? item)
+    {
+        if (item == null || item.Id <= 0)
+            return;
+
+        await Shell.Current.GoToAsync($"{nameof(EditStore)}?storeId={item.Id}");
+    }
+
+    private async void OnAddStoreClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(AddStore));
+    }
+
+    private async void OnRefreshClicked(object sender, EventArgs e)
+    {
+        await LoadStoresAsync();
+    }
+
+    private async void OnLogoutClicked(object sender, EventArgs e)
+    {
+        try
         {
-            if (item == null)
+            bool confirm = await DisplayAlert("تأكيد", "هل تريد تسجيل الخروج؟", "نعم", "إلغاء");
+            if (!confirm)
                 return;
 
-            await DisplayAlert("تعديل متجر", $"سيتم فتح تعديل المتجر: {item.Name}", "موافق");
+            Preferences.Remove("AdminToken");
+            Preferences.Remove("AdminTokenExpireAt");
+            Preferences.Remove("AdminUserName");
+            Preferences.Remove("AdminId");
+
+            await Shell.Current.GoToAsync("//Login");
         }
-
-        private async Task OnViewStore(StoreItemViewModel? item)
+        catch
         {
-            if (item == null)
-                return;
-
-            var info =
-                $"اسم المتجر: {item.Name}\n" +
-                $"Slug: {item.Slug}\n" +
-                $"الحالة: {item.IsActiveText}\n" +
-                $"الوصف: {item.Description}";
-
-            await DisplayAlert("تفاصيل المتجر", info, "موافق");
         }
+    }
 
-        private void SetBusy(bool value)
+    private void SetLoading(bool isLoading)
+    {
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
+        StoresCollectionView.IsVisible = !isLoading;
+    }
+
+    private void ShowMessage(string? message)
+    {
+        MessageLabel.Text = message ?? string.Empty;
+        MessageLabel.IsVisible = !string.IsNullOrWhiteSpace(message);
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public sealed class StoreListItemViewModel
+    {
+        public long Id { get; }
+        public string Name { get; }
+        public string Slug { get; }
+        public string Description { get; }
+        public string Phone { get; }
+        public bool IsActive { get; }
+        public string IsActiveText => IsActive ? "نشط" : "غير نشط";
+        public string CreatedAtText { get; }
+
+        public StoreListItemViewModel(StoreDto dto)
         {
-            _isBusy = value;
+            Id = dto.Id;
+            Name = dto.Name ?? string.Empty;
+            Slug = dto.Slug ?? string.Empty;
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? "لا يوجد وصف" : dto.Description;
 
-            LoadingIndicator.IsVisible = value;
-            LoadingIndicator.IsRunning = value;
-        }
+            Phone = "—";
 
-        private void ShowMessage(string message)
-        {
-            MessageLabel.Text = message;
-            MessageLabel.IsVisible = true;
-        }
-
-        private void HideMessage()
-        {
-            MessageLabel.Text = string.Empty;
-            MessageLabel.IsVisible = false;
-        }
-
-        public class StoreItemViewModel
-        {
-            public long StoreId { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string Slug { get; set; } = string.Empty;
-            public string Description { get; set; } = string.Empty;
-            public bool IsActive { get; set; }
-            public string IsActiveText { get; set; } = string.Empty;
-            public DateTime CreatedAt { get; set; }
-            public string CreatedAtText { get; set; } = string.Empty;
+            IsActive = dto.IsActive;
+            CreatedAtText = dto.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt");
         }
     }
 }

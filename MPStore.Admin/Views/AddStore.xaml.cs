@@ -76,9 +76,9 @@ namespace MPStore.Admin.Views
 
                 var result = await _storesService.CreateStoreAsync(request);
 
-                if (!result)
+                if (!result.IsSuccess)
                 {
-                    ShowMessage("فشل حفظ المتجر");
+                    ShowMessage(result.Message);
                     return;
                 }
 

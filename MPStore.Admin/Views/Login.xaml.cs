@@ -1,3 +1,4 @@
+using Microsoft.Maui.Storage;
 using MPStore.Admin.Models.Auth;
 using MPStore.Admin.Services;
 
@@ -7,6 +8,8 @@ namespace MPStore.Admin.Views
     {
         private readonly AuthService _authService;
         private bool _isBusy;
+        private bool _checkedSavedLogin;
+        private bool _navigating;
 
         public Login(AuthService authService)
         {
@@ -14,9 +17,65 @@ namespace MPStore.Admin.Views
             _authService = authService;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            if (_checkedSavedLogin || _navigating || _isBusy)
+                return;
+
+            _checkedSavedLogin = true;
+
+            try
+            {
+                var token = Preferences.Get("AdminToken", string.Empty);
+                var expireAtText = Preferences.Get("AdminTokenExpireAt", string.Empty);
+
+                if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(expireAtText))
+                    return;
+
+                if (!DateTime.TryParse(
+                        expireAtText,
+                        null,
+                        System.Globalization.DateTimeStyles.RoundtripKind,
+                        out var expireAt))
+                    return;
+
+                if (expireAt <= DateTime.UtcNow)
+                {
+                    Preferences.Remove("AdminToken");
+                    Preferences.Remove("AdminTokenExpireAt");
+                    Preferences.Remove("AdminUserName");
+                    Preferences.Remove("AdminId");
+                    return;
+                }
+
+                _navigating = true;
+
+                Dispatcher.Dispatch(async () =>
+                {
+                    try
+                    {
+                        await Task.Delay(150);
+                        await Shell.Current.GoToAsync("//StoresList");
+                    }
+                    catch
+                    {
+                        _navigating = false;
+                        _checkedSavedLogin = false;
+                    }
+                });
+            }
+            catch
+            {
+                _checkedSavedLogin = false;
+                _navigating = false;
+            }
+        }
+
         private async void OnLoginClicked(object sender, EventArgs e)
         {
-            if (_isBusy)
+            if (_isBusy || _navigating)
                 return;
 
             MessageLabel.IsVisible = false;
@@ -59,20 +118,21 @@ namespace MPStore.Admin.Views
 
                 if (result.Admin != null)
                 {
-                    Preferences.Set("AdminUserName", result.Admin.Username);
+                    Preferences.Set("AdminUserName", result.Admin.Username ?? string.Empty);
                     Preferences.Set("AdminId", result.Admin.Id);
                 }
 
                 var expireAt = DateTime.UtcNow.AddMinutes(result.ExpiresInMinutes);
                 Preferences.Set("AdminTokenExpireAt", expireAt.ToString("O"));
 
-                await DisplayAlert("نجاح", "تم تسجيل الدخول بنجاح.", "موافق");
+                _navigating = true;
 
-                // الانتقال لاحقاً
+                await DisplayAlert("نجاح", "تم تسجيل الدخول بنجاح.", "موافق");
                 await Shell.Current.GoToAsync("//StoresList");
             }
             catch (Exception ex)
             {
+                _navigating = false;
                 ShowMessage($"حدث خطأ أثناء تسجيل الدخول: {ex.Message}");
             }
             finally
