@@ -1,5 +1,6 @@
 using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
+using Microsoft.Maui.Storage;
 
 namespace MPStore.Admin.Views
 {
@@ -7,6 +8,8 @@ namespace MPStore.Admin.Views
     {
         private readonly StoresService _storesService;
         private bool _isBusy;
+
+        private string? _selectedImagePath;
 
         public AddStore(StoresService storesService)
         {
@@ -35,6 +38,36 @@ namespace MPStore.Admin.Views
         private void OnIsActiveToggled(object sender, ToggledEventArgs e)
         {
             IsActiveTextLabel.Text = e.Value ? "المتجر نشط" : "المتجر متوقف";
+        }
+
+        private async void OnPickImageClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var result = await FilePicker.Default.PickAsync(new PickOptions
+                {
+                    PickerTitle = "اختر شعار المتجر",
+                    FileTypes = FilePickerFileType.Images
+                });
+
+                if (result == null)
+                    return;
+
+                _selectedImagePath = result.FullPath;
+
+                SelectedImageNameLabel.Text = result.FileName;
+
+                LogoPreviewImage.Source = ImageSource.FromFile(result.FullPath);
+                LogoPreviewImage.IsVisible = true;
+
+                NoImageLabel.IsVisible = false;
+
+                LogoUrlEntry.Text = result.FullPath;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("خطأ", ex.Message, "موافق");
+            }
         }
 
         private async void OnSaveClicked(object sender, EventArgs e)

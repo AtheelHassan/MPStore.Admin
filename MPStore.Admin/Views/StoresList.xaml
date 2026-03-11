@@ -80,11 +80,25 @@
                                 StrokeShape="RoundRectangle 20">
 
                             <Grid RowDefinitions="Auto,Auto,Auto"
-                                  ColumnDefinitions="*,Auto"
+                                  ColumnDefinitions="72,*,Auto"
+                                  ColumnSpacing="12"
                                   RowSpacing="10">
 
+                                <Border Grid.RowSpan="2"
+                                        Grid.Column="0"
+                                        WidthRequest="72"
+                                        HeightRequest="72"
+                                        Padding="6"
+                                        BackgroundColor="#F3F4F6"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 18"
+                                        VerticalOptions="Start">
+                                    <Image Source="{Binding LogoPath}"
+                                           Aspect="AspectFit" />
+                                </Border>
+
                                 <VerticalStackLayout Grid.Row="0"
-                                                     Grid.Column="0"
+                                                     Grid.Column="1"
                                                      Spacing="4">
                                     <Label Text="{Binding Name}"
                                            FontSize="18"
@@ -97,7 +111,7 @@
                                 </VerticalStackLayout>
 
                                 <Border Grid.Row="0"
-                                        Grid.Column="1"
+                                        Grid.Column="2"
                                         Padding="10,6"
                                         BackgroundColor="#E5F7EB"
                                         StrokeThickness="0"
@@ -111,6 +125,7 @@
                                 </Border>
 
                                 <VerticalStackLayout Grid.Row="1"
+                                                     Grid.Column="1"
                                                      Grid.ColumnSpan="2"
                                                      Spacing="6">
                                     <Label Text="{Binding Description}"
@@ -125,7 +140,7 @@
                                 </VerticalStackLayout>
 
                                 <Grid Grid.Row="2"
-                                      Grid.ColumnSpan="2"
+                                      Grid.ColumnSpan="3"
                                       ColumnDefinitions="*,Auto,Auto"
                                       ColumnSpacing="10">
 
@@ -134,7 +149,7 @@
                                            TextColor="#9CA3AF"
                                            VerticalOptions="Center" />
 
-                                    <Button Grid.Column="1"
+                                    <!--<Button Grid.Column="1"
                                             Text="التفاصيل"
                                             HeightRequest="40"
                                             Padding="14,0"
@@ -142,7 +157,7 @@
                                             BackgroundColor="#E5E7EB"
                                             TextColor="#111827"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewCommand}"
-                                            CommandParameter="{Binding .}" />
+                                            CommandParameter="{Binding .}" />-->
 
                                     <Button Grid.Column="2"
                                             Text="تعديل"

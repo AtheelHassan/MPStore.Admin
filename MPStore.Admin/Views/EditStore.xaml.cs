@@ -1,5 +1,6 @@
 using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
+using Microsoft.Maui.Storage;
 
 namespace MPStore.Admin.Views
 {
@@ -10,6 +11,7 @@ namespace MPStore.Admin.Views
         private bool _isBusy;
         private long _storeId;
         private StoreDto? _currentStore;
+        private string? _selectedImagePath;
 
         public string? StoreId
         {
@@ -58,9 +60,28 @@ namespace MPStore.Admin.Views
                 NameEntry.Text = store.Name ?? string.Empty;
                 SlugEntry.Text = store.Slug ?? string.Empty;
                 DescriptionEditor.Text = store.Description ?? string.Empty;
-                LogoUrlEntry.Text = string.Empty;
+
+                PhoneEntry.Text = string.Empty;
+                EmailEntry.Text = string.Empty;
+
+                LogoUrlEntry.Text = store.LogoPath ?? string.Empty;
                 IsActiveSwitch.IsToggled = store.IsActive;
                 IsActiveTextLabel.Text = store.IsActive ? "المتجر نشط" : "المتجر متوقف";
+
+                if (!string.IsNullOrWhiteSpace(store.LogoPath))
+                {
+                    LogoPreviewImage.Source = ImageSource.FromUri(new Uri(store.LogoPath));
+                    LogoPreviewImage.IsVisible = true;
+                    NoImageLabel.IsVisible = false;
+                    SelectedImageNameLabel.Text = "الشعار الحالي";
+                }
+                else
+                {
+                    LogoPreviewImage.Source = null;
+                    LogoPreviewImage.IsVisible = false;
+                    NoImageLabel.IsVisible = true;
+                    SelectedImageNameLabel.Text = "لم يتم اختيار صورة بعد";
+                }
             }
             catch (Exception ex)
             {
@@ -86,6 +107,34 @@ namespace MPStore.Admin.Views
         private void OnIsActiveToggled(object sender, ToggledEventArgs e)
         {
             IsActiveTextLabel.Text = e.Value ? "المتجر نشط" : "المتجر متوقف";
+        }
+
+        private async void OnPickImageClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var result = await FilePicker.Default.PickAsync(new PickOptions
+                {
+                    PickerTitle = "اختر شعار المتجر",
+                    FileTypes = FilePickerFileType.Images
+                });
+
+                if (result == null)
+                    return;
+
+                _selectedImagePath = result.FullPath;
+
+                SelectedImageNameLabel.Text = result.FileName;
+                LogoPreviewImage.Source = ImageSource.FromFile(result.FullPath);
+                LogoPreviewImage.IsVisible = true;
+                NoImageLabel.IsVisible = false;
+
+                LogoUrlEntry.Text = result.FullPath;
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"خطأ أثناء اختيار الصورة: {ex.Message}");
+            }
         }
 
         private async void OnSaveClicked(object sender, EventArgs e)
@@ -167,7 +216,10 @@ namespace MPStore.Admin.Views
             NameEntry.IsEnabled = !value;
             SlugEntry.IsEnabled = !value;
             DescriptionEditor.IsEnabled = !value;
+            PhoneEntry.IsEnabled = !value;
+            EmailEntry.IsEnabled = !value;
             LogoUrlEntry.IsEnabled = !value;
+            PickImageButton.IsEnabled = !value;
             IsActiveSwitch.IsEnabled = !value;
         }
 

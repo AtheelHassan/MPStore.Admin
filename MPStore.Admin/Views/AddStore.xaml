@@ -100,16 +100,65 @@
                                TextColor="#111827"
                                PlaceholderColor="#9CA3AF" />
 
-                        <Label Text="رابط الشعار"
+                        <Label Text="شعار المتجر"
                                FontSize="14"
                                TextColor="#374151" />
-                        <Entry x:Name="LogoUrlEntry"
-                               Placeholder="https://example.com/logo.png"
-                               Keyboard="Url"
-                               HeightRequest="50"
-                               BackgroundColor="#F3F4F6"
-                               TextColor="#111827"
-                               PlaceholderColor="#9CA3AF" />
+
+                        <Border StrokeThickness="0"
+                                BackgroundColor="#F3F4F6"
+                                Padding="12"
+                                StrokeShape="RoundRectangle 16">
+                            <VerticalStackLayout Spacing="12">
+
+                                <Grid ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="12">
+                                    <Button x:Name="PickImageButton"
+                                            Text="اختيار صورة"
+                                            HeightRequest="46"
+                                            Padding="18,0"
+                                            CornerRadius="12"
+                                            BackgroundColor="#2563EB"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            Clicked="OnPickImageClicked" />
+
+                                    <Label x:Name="SelectedImageNameLabel"
+                                           Grid.Column="1"
+                                           Text="لم يتم اختيار صورة بعد"
+                                           FontSize="13"
+                                           TextColor="#6B7280"
+                                           VerticalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation" />
+                                </Grid>
+
+                                <Border Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White"
+                                        Padding="8"
+                                        StrokeShape="RoundRectangle 14"
+                                        HeightRequest="180">
+                                    <Grid>
+                                        <Image x:Name="LogoPreviewImage"
+                                               Aspect="AspectFit"
+                                               IsVisible="False" />
+
+                                        <Label x:Name="NoImageLabel"
+                                               Text="معاينة الشعار ستظهر هنا"
+                                               FontSize="13"
+                                               TextColor="#9CA3AF"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               HorizontalTextAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <Entry x:Name="LogoUrlEntry"
+                                       IsVisible="False"
+                                       HeightRequest="1"
+                                       Opacity="0"
+                                       InputTransparent="True" />
+                            </VerticalStackLayout>
+                        </Border>
 
                         <Grid ColumnDefinitions="*,Auto"
                               ColumnSpacing="12"

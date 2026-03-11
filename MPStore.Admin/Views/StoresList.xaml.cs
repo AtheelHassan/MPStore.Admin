@@ -133,6 +133,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         public string Slug { get; }
         public string Description { get; }
         public string Phone { get; }
+        public string LogoPath { get; }
         public bool IsActive { get; }
         public string IsActiveText => IsActive ? "نشط" : "غير نشط";
         public string CreatedAtText { get; }
@@ -143,9 +144,8 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             Name = dto.Name ?? string.Empty;
             Slug = dto.Slug ?? string.Empty;
             Description = string.IsNullOrWhiteSpace(dto.Description) ? "لا يوجد وصف" : dto.Description;
-
             Phone = "—";
-
+            LogoPath = dto.LogoPath ?? string.Empty;
             IsActive = dto.IsActive;
             CreatedAtText = dto.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt");
         }
