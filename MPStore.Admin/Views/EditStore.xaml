@@ -206,6 +206,14 @@
                         FontAttributes="Bold"
                         Clicked="OnSaveClicked" />
 
+                <Button Text="إدارة العاملين"
+                        HeightRequest="48"
+                        CornerRadius="14"
+                        BackgroundColor="#059669"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnManageUsersClicked" />
+
                 <ActivityIndicator x:Name="LoadingIndicator"
                                    IsVisible="False"
                                    IsRunning="False"

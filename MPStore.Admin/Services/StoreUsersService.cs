@@ -17,6 +17,11 @@ public class StoreUsersService
         return await _http.GetFromJsonAsync<List<StoreUserDto>>($"api/storeusers/store/{storeId}");
     }
 
+    public async Task<StoreUserDto?> GetStoreUserAsync(long id)
+    {
+        return await _http.GetFromJsonAsync<StoreUserDto>($"api/storeusers/{id}");
+    }
+
     public async Task<bool> CreateStoreUserAsync(CreateStoreUserRequest request)
     {
         var response = await _http.PostAsJsonAsync("api/storeusers", request);

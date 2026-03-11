@@ -10,7 +10,7 @@
 
         public string Password { get; set; } = string.Empty;
 
-        public string Role { get; set; } = "Owner";
+        public byte Role { get; set; } = 1;
 
         public bool IsActive { get; set; } = true;
     }

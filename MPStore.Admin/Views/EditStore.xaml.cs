@@ -202,7 +202,7 @@ namespace MPStore.Admin.Views
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Navigation.PopAsync();
+            await Shell.Current.GoToAsync($"//{nameof(StoresList)}");
         }
 
         private void SetBusy(bool value)
@@ -235,6 +235,14 @@ namespace MPStore.Admin.Views
             MessageLabel.IsVisible = false;
         }
 
+
+        private async void OnManageUsersClicked(object sender, EventArgs e)
+        {
+            if (_storeId <= 0)
+                return;
+
+            await Shell.Current.GoToAsync($"StoreUsersList?storeId={_storeId}");
+        }
         private static string GenerateSlug(string text)
         {
             var value = text.Trim().ToLowerInvariant();
