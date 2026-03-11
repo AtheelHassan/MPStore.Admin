@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using MPStore.Admin.Models.Stores;
 
 namespace MPStore.Admin.Services;
@@ -14,7 +15,8 @@ public class StoresService
 
     public async Task<List<StoreDto>?> GetStoresAsync()
     {
-        return await _http.GetFromJsonAsync<List<StoreDto>>("api/stores");
+        var result = await _http.GetFromJsonAsync<StoresListResponse>("api/stores");
+        return result?.Items ?? new List<StoreDto>();
     }
 
     public async Task<StoreDto?> GetStoreAsync(long storeId)
@@ -32,5 +34,11 @@ public class StoresService
     {
         var response = await _http.PutAsJsonAsync($"api/stores/{request.StoreId}", request);
         return response.IsSuccessStatusCode;
+    }
+
+    private sealed class StoresListResponse
+    {
+        [JsonPropertyName("items")]
+        public List<StoreDto>? Items { get; set; }
     }
 }

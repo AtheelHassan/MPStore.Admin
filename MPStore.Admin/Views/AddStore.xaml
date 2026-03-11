@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MPStore.Admin.Views.AddStore"
+             Title="إضافة متجر"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F7F8FA"
+             FlowDirection="RightToLeft">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0"
+              Padding="20,18,20,12"
+              ColumnDefinitions="Auto,*"
+              BackgroundColor="White"
+              ColumnSpacing="12">
+
+            <Button Text="رجوع"
+                    HeightRequest="42"
+                    Padding="14,0"
+                    CornerRadius="12"
+                    BackgroundColor="#E5E7EB"
+                    TextColor="#111827"
+                    Clicked="OnBackClicked" />
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="4">
+                <Label Text="إضافة متجر جديد"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#111827" />
+
+                <Label Text="أدخل بيانات المتجر الأساسية ثم احفظها"
+                       FontSize="14"
+                       TextColor="#6B7280" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,14,16,14"
+                                 Spacing="14">
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Label Text="اسم المتجر"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="NameEntry"
+                               Placeholder="مثال: متجر بغداد الإلكتروني"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF"
+                               TextChanged="OnNameChanged" />
+
+                        <Label Text="Slug"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="SlugEntry"
+                               Placeholder="مثال: baghdad-store"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="الوصف"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Editor x:Name="DescriptionEditor"
+                                Placeholder="اكتب وصفًا مختصرًا عن المتجر"
+                                AutoSize="TextChanges"
+                                MinimumHeightRequest="110"
+                                BackgroundColor="#F3F4F6"
+                                TextColor="#111827"
+                                PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رقم الهاتف"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="PhoneEntry"
+                               Placeholder="أدخل رقم الهاتف"
+                               Keyboard="Telephone"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="البريد الإلكتروني"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="EmailEntry"
+                               Placeholder="example@store.com"
+                               Keyboard="Email"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رابط الشعار"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="LogoUrlEntry"
+                               Placeholder="https://example.com/logo.png"
+                               Keyboard="Url"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              ColumnSpacing="12"
+                              Margin="0,4,0,0">
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="حالة المتجر"
+                                       FontSize="14"
+                                       TextColor="#374151" />
+                                <Label x:Name="IsActiveTextLabel"
+                                       Text="المتجر نشط"
+                                       FontSize="13"
+                                       TextColor="#6B7280" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="IsActiveSwitch"
+                                    IsToggled="True"
+                                    VerticalOptions="Center"
+                                    Toggled="OnIsActiveToggled" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="MessageLabel"
+                       IsVisible="False"
+                       FontSize="13"
+                       HorizontalTextAlignment="Center"
+                       TextColor="#DC2626"
+                       Margin="8,0,8,0" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              Padding="16,10,16,18"
+              BackgroundColor="#F7F8FA">
+            <VerticalStackLayout Spacing="10">
+                <Button x:Name="SaveButton"
+                        Text="حفظ المتجر"
+                        HeightRequest="52"
+                        CornerRadius="14"
+                        BackgroundColor="#2563EB"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveClicked" />
+
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   IsVisible="False"
+                                   IsRunning="False"
+                                   Color="#2563EB"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
+    </Grid>
+</ContentPage>
