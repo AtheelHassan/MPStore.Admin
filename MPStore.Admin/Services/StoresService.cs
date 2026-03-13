@@ -107,6 +107,39 @@ public class StoresService
         }
     }
 
+    public async Task<ServiceResult> DeleteStoreAsync(long storeId)
+    {
+        try
+        {
+            var response = await _http.DeleteAsync($"api/stores/{storeId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!string.IsNullOrWhiteSpace(content))
+                {
+                    var apiResponse = JsonSerializer.Deserialize<ApiErrorResponse>(content, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (!string.IsNullOrWhiteSpace(apiResponse?.Message))
+                        return ServiceResult.Success(apiResponse.Message!);
+                }
+
+                return ServiceResult.Success("تم حذف المتجر بنجاح.");
+            }
+
+            var message = await ReadErrorMessageAsync(response);
+            return ServiceResult.Fail(message);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult.Fail($"تعذر الاتصال بالخادم: {ex.Message}");
+        }
+    }
+
     private static async Task<string> ReadErrorMessageAsync(HttpResponseMessage response)
     {
         try

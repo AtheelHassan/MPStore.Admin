@@ -2,9 +2,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using MPStore.Admin.Helpers;
 using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
-using MPStore.Admin.Helpers;
 using Microsoft.Maui.Storage;
 
 namespace MPStore.Admin.Views;
@@ -18,6 +18,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
     public ICommand EditCommand { get; }
     public ICommand ViewCommand { get; }
+    public ICommand DeleteCommand { get; }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -32,6 +33,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
         EditCommand = new Command<StoreListItemViewModel>(async item => await GoToEditAsync(item));
         ViewCommand = new Command<StoreListItemViewModel>(async item => await GoToEditAsync(item));
+        DeleteCommand = new Command<StoreListItemViewModel>(async item => await DeleteStoreAsync(item));
     }
 
     protected override async void OnAppearing()
@@ -78,6 +80,51 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             return;
 
         await Shell.Current.GoToAsync($"{AppShell.RouteEditStore}?storeId={item.Id}");
+    }
+
+    private async Task DeleteStoreAsync(StoreListItemViewModel? item)
+    {
+        if (_isBusy || item == null || item.Id <= 0)
+            return;
+
+        var confirm = await DisplayAlert(
+            "تأكيد الحذف",
+            $"سيتم حذف المتجر \"{item.Name}\" حذفًا عميقًا مع جميع المستخدمين والمنتجات والصور والبيانات المرتبطة به. هل تريد المتابعة؟",
+            "نعم",
+            "إلغاء");
+
+        if (!confirm)
+            return;
+
+        try
+        {
+            _isBusy = true;
+            SetLoading(true);
+            ShowMessage(null);
+
+            var result = await _storesService.DeleteStoreAsync(item.Id);
+
+            if (!result.IsSuccess)
+            {
+                ShowMessage(result.Message);
+                return;
+            }
+
+            var existingItem = Stores.FirstOrDefault(x => x.Id == item.Id);
+            if (existingItem != null)
+                Stores.Remove(existingItem);
+
+            await DisplayAlert("نجاح", result.Message, "موافق");
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"تعذر حذف المتجر: {ex.Message}");
+        }
+        finally
+        {
+            SetLoading(false);
+            _isBusy = false;
+        }
     }
 
     private async void OnAddStoreClicked(object sender, EventArgs e)

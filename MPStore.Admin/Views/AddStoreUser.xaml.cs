@@ -144,8 +144,9 @@ namespace MPStore.Admin.Views
                     FullName = fullName,
                     Phone = phone,
                     Password = password,
-                    Role = GetLegacyRoleValue(selectedRole.Code),
                     RoleId = selectedRole.Id,
+                    RoleCode = selectedRole.Code,
+                    RoleName = selectedRole.Name,
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
@@ -194,16 +195,6 @@ namespace MPStore.Admin.Views
         {
             MessageLabel.Text = message;
             MessageLabel.IsVisible = true;
-        }
-
-        private static byte GetLegacyRoleValue(string? roleCode)
-        {
-            return (roleCode ?? string.Empty).Trim().ToLowerInvariant() switch
-            {
-                "owner" => 1,
-                "manager" => 2,
-                _ => 3
-            };
         }
     }
 }

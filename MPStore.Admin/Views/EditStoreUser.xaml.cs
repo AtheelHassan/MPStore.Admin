@@ -119,19 +119,21 @@ namespace MPStore.Admin.Views
 
             var selectedIndex = -1;
 
-            if (user.RoleId.HasValue && user.RoleId.Value > 0)
+            if (user.RoleId > 0)
             {
-                selectedIndex = _roles.FindIndex(x => x.Id == user.RoleId.Value);
+                selectedIndex = _roles.FindIndex(x => x.Id == user.RoleId);
             }
 
-            if (selectedIndex < 0)
+            if (selectedIndex < 0 && !string.IsNullOrWhiteSpace(user.RoleCode))
             {
-                selectedIndex = user.Role switch
-                {
-                    1 => _roles.FindIndex(x => string.Equals(x.Code, "owner", StringComparison.OrdinalIgnoreCase)),
-                    2 => _roles.FindIndex(x => string.Equals(x.Code, "manager", StringComparison.OrdinalIgnoreCase)),
-                    _ => _roles.FindIndex(x => string.Equals(x.Code, "worker", StringComparison.OrdinalIgnoreCase))
-                };
+                selectedIndex = _roles.FindIndex(x =>
+                    string.Equals(x.Code, user.RoleCode, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (selectedIndex < 0 && !string.IsNullOrWhiteSpace(user.RoleName))
+            {
+                selectedIndex = _roles.FindIndex(x =>
+                    string.Equals(x.Name, user.RoleName, StringComparison.OrdinalIgnoreCase));
             }
 
             RolePicker.SelectedIndex = selectedIndex >= 0 ? selectedIndex : -1;
@@ -187,8 +189,9 @@ namespace MPStore.Admin.Views
                     FullName = fullName,
                     Phone = phone,
                     Password = string.IsNullOrWhiteSpace(password) ? null : password,
-                    Role = GetLegacyRoleValue(selectedRole.Code),
                     RoleId = selectedRole.Id,
+                    RoleCode = selectedRole.Code,
+                    RoleName = selectedRole.Name,
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
@@ -237,16 +240,6 @@ namespace MPStore.Admin.Views
         {
             MessageLabel.Text = message;
             MessageLabel.IsVisible = true;
-        }
-
-        private static byte GetLegacyRoleValue(string? roleCode)
-        {
-            return (roleCode ?? string.Empty).Trim().ToLowerInvariant() switch
-            {
-                "owner" => 1,
-                "manager" => 2,
-                _ => 3
-            };
         }
     }
 }
