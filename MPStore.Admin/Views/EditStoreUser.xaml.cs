@@ -1,3 +1,4 @@
+using MPStore.Admin.Models.StoreRoles;
 using MPStore.Admin.Models.StoreUsers;
 using MPStore.Admin.Services;
 
@@ -8,10 +9,14 @@ namespace MPStore.Admin.Views
     public partial class EditStoreUser : ContentPage
     {
         private readonly StoreUsersService _service;
+        private readonly StoreRolesService _storeRolesService;
         private bool _isBusy;
+        private bool _rolesLoaded;
 
         private long _userId;
         private long _storeId;
+
+        private readonly List<StoreRoleDto> _roles = new();
 
         public string? UserId
         {
@@ -33,47 +38,37 @@ namespace MPStore.Admin.Views
             }
         }
 
-        public EditStoreUser(StoreUsersService service)
+        public EditStoreUser(StoreUsersService service, StoreRolesService storeRolesService)
         {
             InitializeComponent();
             _service = service;
+            _storeRolesService = storeRolesService;
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await LoadUser();
+
+            if (_storeId <= 0 || _userId <= 0)
+                return;
+
+            await LoadRolesAndUserAsync();
         }
 
-        private async Task LoadUser()
+        private async Task LoadRolesAndUserAsync()
         {
-            if (_isBusy || _userId <= 0)
+            if (_isBusy)
                 return;
 
             try
             {
                 SetBusy(true);
+                MessageLabel.IsVisible = false;
 
-                var user = await _service.GetStoreUserAsync(_userId);
+                if (!_rolesLoaded)
+                    await LoadRolesAsync();
 
-                if (user == null)
-                {
-                    ShowMessage("لم يتم العثور على العامل.");
-                    return;
-                }
-
-                FullNameEntry.Text = user.FullName;
-                PhoneEntry.Text = user.Phone;
-
-                RolePicker.SelectedIndex = user.Role switch
-                {
-                    1 => 0,
-                    2 => 1,
-                    _ => 2
-                };
-
-                IsActiveSwitch.IsToggled = user.IsActive;
-                IsActiveTextLabel.Text = user.IsActive ? "العامل نشط" : "العامل متوقف";
+                await LoadUserAsync();
             }
             catch (Exception ex)
             {
@@ -83,6 +78,66 @@ namespace MPStore.Admin.Views
             {
                 SetBusy(false);
             }
+        }
+
+        private async Task LoadRolesAsync()
+        {
+            _roles.Clear();
+            RolePicker.ItemsSource = null;
+            RolePicker.SelectedIndex = -1;
+
+            var roles = await _storeRolesService.GetStoreRolesAsync(_storeId);
+
+            if (roles == null || roles.Count == 0)
+            {
+                ShowMessage("لا توجد أدوار متاحة لهذا المتجر.");
+                return;
+            }
+
+            _roles.AddRange(roles.Where(x => x.IsActive));
+
+            RolePicker.ItemsSource = _roles.Select(x => x.Name).ToList();
+            _rolesLoaded = true;
+        }
+
+        private async Task LoadUserAsync()
+        {
+            if (_userId <= 0)
+                return;
+
+            var result = await _service.GetStoreUserAsync(_userId);
+            var user = result?.User;
+
+            if (user == null)
+            {
+                ShowMessage("لم يتم العثور على العامل.");
+                return;
+            }
+
+            FullNameEntry.Text = user.FullName;
+            PhoneEntry.Text = user.Phone;
+
+            var selectedIndex = -1;
+
+            if (user.RoleId.HasValue && user.RoleId.Value > 0)
+            {
+                selectedIndex = _roles.FindIndex(x => x.Id == user.RoleId.Value);
+            }
+
+            if (selectedIndex < 0)
+            {
+                selectedIndex = user.Role switch
+                {
+                    1 => _roles.FindIndex(x => string.Equals(x.Code, "owner", StringComparison.OrdinalIgnoreCase)),
+                    2 => _roles.FindIndex(x => string.Equals(x.Code, "manager", StringComparison.OrdinalIgnoreCase)),
+                    _ => _roles.FindIndex(x => string.Equals(x.Code, "worker", StringComparison.OrdinalIgnoreCase))
+                };
+            }
+
+            RolePicker.SelectedIndex = selectedIndex >= 0 ? selectedIndex : -1;
+
+            IsActiveSwitch.IsToggled = user.IsActive;
+            IsActiveTextLabel.Text = user.IsActive ? "العامل نشط" : "العامل متوقف";
         }
 
         private void OnIsActiveToggled(object sender, ToggledEventArgs e)
@@ -113,7 +168,7 @@ namespace MPStore.Admin.Views
                 return;
             }
 
-            if (RolePicker.SelectedIndex < 0)
+            if (RolePicker.SelectedIndex < 0 || RolePicker.SelectedIndex >= _roles.Count)
             {
                 ShowMessage("يرجى اختيار الدور.");
                 return;
@@ -123,6 +178,8 @@ namespace MPStore.Admin.Views
             {
                 SetBusy(true);
 
+                var selectedRole = _roles[RolePicker.SelectedIndex];
+
                 var request = new UpdateStoreUserRequest
                 {
                     StoreUserId = _userId,
@@ -130,20 +187,21 @@ namespace MPStore.Admin.Views
                     FullName = fullName,
                     Phone = phone,
                     Password = string.IsNullOrWhiteSpace(password) ? null : password,
-                    Role = GetRoleValue(RolePicker.SelectedIndex),
+                    Role = GetLegacyRoleValue(selectedRole.Code),
+                    RoleId = selectedRole.Id,
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
-                var result = await _service.UpdateStoreUserAsync(request);
+                var updateResult = await _service.UpdateStoreUserAsync(request);
 
-                if (!result)
+                if (!updateResult)
                 {
                     ShowMessage("فشل تحديث العامل.");
                     return;
                 }
 
                 await DisplayAlert("نجاح", "تم تحديث بيانات العامل.", "موافق");
-                await Shell.Current.GoToAsync($"{nameof(StoreUsersList)}?storeId={_storeId}");
+                await Shell.Current.GoToAsync($"{AppShell.RouteStoreUsersList}?storeId={_storeId}");
             }
             catch (Exception ex)
             {
@@ -157,7 +215,7 @@ namespace MPStore.Admin.Views
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync($"{nameof(StoreUsersList)}?storeId={_storeId}");
+            await Shell.Current.GoToAsync($"{AppShell.RouteStoreUsersList}?storeId={_storeId}");
         }
 
         private void SetBusy(bool value)
@@ -181,12 +239,12 @@ namespace MPStore.Admin.Views
             MessageLabel.IsVisible = true;
         }
 
-        private static byte GetRoleValue(int selectedIndex)
+        private static byte GetLegacyRoleValue(string? roleCode)
         {
-            return selectedIndex switch
+            return (roleCode ?? string.Empty).Trim().ToLowerInvariant() switch
             {
-                0 => 1,
-                1 => 2,
+                "owner" => 1,
+                "manager" => 2,
                 _ => 3
             };
         }

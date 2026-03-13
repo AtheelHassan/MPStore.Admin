@@ -1,3 +1,4 @@
+using MPStore.Admin.Models.StoreRoles;
 using MPStore.Admin.Models.StoreUsers;
 using MPStore.Admin.Services;
 
@@ -7,8 +8,12 @@ namespace MPStore.Admin.Views
     public partial class AddStoreUser : ContentPage
     {
         private readonly StoreUsersService _storeUsersService;
+        private readonly StoreRolesService _storeRolesService;
         private bool _isBusy;
+        private bool _rolesLoaded;
         private long _storeId;
+
+        private readonly List<StoreRoleDto> _roles = new();
 
         public string? StoreId
         {
@@ -20,11 +25,65 @@ namespace MPStore.Admin.Views
             }
         }
 
-        public AddStoreUser(StoreUsersService storeUsersService)
+        public AddStoreUser(StoreUsersService storeUsersService, StoreRolesService storeRolesService)
         {
             InitializeComponent();
             _storeUsersService = storeUsersService;
-            RolePicker.SelectedIndex = 0;
+            _storeRolesService = storeRolesService;
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            if (_storeId <= 0 || _rolesLoaded)
+                return;
+
+            await LoadRolesAsync();
+        }
+
+        private async Task LoadRolesAsync()
+        {
+            if (_isBusy)
+                return;
+
+            try
+            {
+                SetBusy(true);
+                MessageLabel.IsVisible = false;
+
+                _roles.Clear();
+                RolePicker.ItemsSource = null;
+                RolePicker.SelectedIndex = -1;
+
+                var roles = await _storeRolesService.GetStoreRolesAsync(_storeId);
+
+                if (roles == null || roles.Count == 0)
+                {
+                    ShowMessage("لا توجد أدوار متاحة لهذا المتجر.");
+                    return;
+                }
+
+                _roles.AddRange(roles.Where(x => x.IsActive));
+
+                if (_roles.Count == 0)
+                {
+                    ShowMessage("لا توجد أدوار نشطة لهذا المتجر.");
+                    return;
+                }
+
+                RolePicker.ItemsSource = _roles.Select(x => x.Name).ToList();
+                RolePicker.SelectedIndex = 0;
+                _rolesLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"خطأ: {ex.Message}");
+            }
+            finally
+            {
+                SetBusy(false);
+            }
         }
 
         private void OnIsActiveToggled(object sender, ToggledEventArgs e)
@@ -67,7 +126,7 @@ namespace MPStore.Admin.Views
                 return;
             }
 
-            if (RolePicker.SelectedIndex < 0)
+            if (RolePicker.SelectedIndex < 0 || RolePicker.SelectedIndex >= _roles.Count)
             {
                 ShowMessage("يرجى اختيار الدور.");
                 return;
@@ -77,13 +136,16 @@ namespace MPStore.Admin.Views
             {
                 SetBusy(true);
 
+                var selectedRole = _roles[RolePicker.SelectedIndex];
+
                 var request = new CreateStoreUserRequest
                 {
                     StoreId = _storeId,
                     FullName = fullName,
                     Phone = phone,
                     Password = password,
-                    Role = GetRoleValue(RolePicker.SelectedIndex),
+                    Role = GetLegacyRoleValue(selectedRole.Code),
+                    RoleId = selectedRole.Id,
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
@@ -96,7 +158,7 @@ namespace MPStore.Admin.Views
                 }
 
                 await DisplayAlert("نجاح", "تم إنشاء العامل بنجاح.", "موافق");
-                await Shell.Current.GoToAsync("..");
+                await Shell.Current.GoToAsync($"{AppShell.RouteStoreUsersList}?storeId={_storeId}");
             }
             catch (Exception ex)
             {
@@ -110,7 +172,7 @@ namespace MPStore.Admin.Views
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync($"{nameof(StoreUsersList)}?storeId={_storeId}");
+            await Shell.Current.GoToAsync($"{AppShell.RouteStoreUsersList}?storeId={_storeId}");
         }
 
         private void SetBusy(bool value)
@@ -134,12 +196,12 @@ namespace MPStore.Admin.Views
             MessageLabel.IsVisible = true;
         }
 
-        private static byte GetRoleValue(int selectedIndex)
+        private static byte GetLegacyRoleValue(string? roleCode)
         {
-            return selectedIndex switch
+            return (roleCode ?? string.Empty).Trim().ToLowerInvariant() switch
             {
-                0 => 1,
-                1 => 2,
+                "owner" => 1,
+                "manager" => 2,
                 _ => 3
             };
         }

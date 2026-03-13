@@ -1,6 +1,7 @@
+using Microsoft.Maui.Storage;
+using MPStore.Admin.Helpers;
 using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
-using Microsoft.Maui.Storage;
 
 namespace MPStore.Admin.Views
 {
@@ -70,7 +71,9 @@ namespace MPStore.Admin.Views
 
                 if (!string.IsNullOrWhiteSpace(store.LogoPath))
                 {
-                    LogoPreviewImage.Source = ImageSource.FromUri(new Uri(store.LogoPath));
+                    var url = ApiConfig.BaseUrl.TrimEnd('/') + store.LogoPath;
+
+                    LogoPreviewImage.Source = ImageSource.FromUri(new Uri(url));
                     LogoPreviewImage.IsVisible = true;
                     NoImageLabel.IsVisible = false;
                     SelectedImageNameLabel.Text = "الشعار الحالي";
@@ -169,13 +172,26 @@ namespace MPStore.Admin.Views
             {
                 SetBusy(true);
 
+                string? logoPath = _currentStore?.LogoPath;
+
+                if (!string.IsNullOrWhiteSpace(_selectedImagePath))
+                {
+                    logoPath = await _storesService.UploadLogoAsync(_selectedImagePath, slug, _storeId);
+
+                    if (string.IsNullOrWhiteSpace(logoPath))
+                    {
+                        ShowMessage("فشل رفع شعار المتجر.");
+                        return;
+                    }
+                }
+
                 var request = new UpdateStoreRequest
                 {
                     StoreId = _storeId,
                     Name = name,
                     Slug = slug,
                     Description = DescriptionEditor.Text?.Trim(),
-                    LogoPath = LogoUrlEntry.Text?.Trim(),
+                    LogoPath = logoPath,
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
@@ -188,7 +204,7 @@ namespace MPStore.Admin.Views
                 }
 
                 await DisplayAlert("نجاح", "تم تحديث بيانات المتجر بنجاح.", "موافق");
-                await Navigation.PopAsync();
+                await Shell.Current.GoToAsync(AppShell.RouteStoresList);
             }
             catch (Exception ex)
             {
@@ -202,7 +218,7 @@ namespace MPStore.Admin.Views
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync($"//{nameof(StoresList)}");
+            await Shell.Current.GoToAsync(AppShell.RouteStoresList);
         }
 
         private void SetBusy(bool value)
@@ -235,14 +251,14 @@ namespace MPStore.Admin.Views
             MessageLabel.IsVisible = false;
         }
 
-
         private async void OnManageUsersClicked(object sender, EventArgs e)
         {
             if (_storeId <= 0)
                 return;
 
-            await Shell.Current.GoToAsync($"StoreUsersList?storeId={_storeId}");
+            await Shell.Current.GoToAsync($"{AppShell.RouteStoreUsersList}?storeId={_storeId}");
         }
+
         private static string GenerateSlug(string text)
         {
             var value = text.Trim().ToLowerInvariant();

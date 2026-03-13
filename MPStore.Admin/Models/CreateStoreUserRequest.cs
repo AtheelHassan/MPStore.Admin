@@ -5,13 +5,14 @@
         public long StoreId { get; set; }
 
         public string FullName { get; set; } = string.Empty;
-
         public string Phone { get; set; } = string.Empty;
 
         public string Password { get; set; } = string.Empty;
 
-        public byte Role { get; set; } = 1;
+        public byte Role { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public long? RoleId { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

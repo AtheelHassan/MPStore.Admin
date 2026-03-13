@@ -96,6 +96,23 @@ namespace MPStore.Admin.Views
             {
                 SetBusy(true);
 
+                string? logoUrl = null;
+
+                if (!string.IsNullOrWhiteSpace(_selectedImagePath))
+                {
+                    logoUrl = await _storesService.UploadLogoAsync(_selectedImagePath, slug, null);
+
+                    if (string.IsNullOrWhiteSpace(logoUrl))
+                    {
+                        ShowMessage("فشل رفع شعار المتجر.");
+                        return;
+                    }
+                }
+                else
+                {
+                    logoUrl = LogoUrlEntry.Text?.Trim();
+                }
+
                 var request = new CreateStoreRequest
                 {
                     Name = name,
@@ -103,7 +120,7 @@ namespace MPStore.Admin.Views
                     Description = DescriptionEditor.Text,
                     Phone = PhoneEntry.Text,
                     Email = EmailEntry.Text,
-                    LogoUrl = LogoUrlEntry.Text,
+                    LogoPath = logoUrl,
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
@@ -117,7 +134,7 @@ namespace MPStore.Admin.Views
 
                 await DisplayAlert("نجاح", "تم إنشاء المتجر بنجاح", "موافق");
 
-                await Navigation.PopAsync();
+                await Shell.Current.GoToAsync(AppShell.RouteStoresList);
             }
             catch (Exception ex)
             {
@@ -131,7 +148,7 @@ namespace MPStore.Admin.Views
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Navigation.PopAsync();
+            await Shell.Current.GoToAsync(AppShell.RouteStoresList);
         }
 
         private void SetBusy(bool value)

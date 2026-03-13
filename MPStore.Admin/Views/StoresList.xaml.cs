@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
+using MPStore.Admin.Helpers;
+using Microsoft.Maui.Storage;
 
 namespace MPStore.Admin.Views;
 
@@ -75,12 +77,12 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         if (item == null || item.Id <= 0)
             return;
 
-        await Shell.Current.GoToAsync($"{nameof(EditStore)}?storeId={item.Id}");
+        await Shell.Current.GoToAsync($"{AppShell.RouteEditStore}?storeId={item.Id}");
     }
 
     private async void OnAddStoreClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(AddStore));
+        await Shell.Current.GoToAsync(AppShell.RouteAddStore);
     }
 
     private async void OnRefreshClicked(object sender, EventArgs e)
@@ -145,7 +147,12 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             Slug = dto.Slug ?? string.Empty;
             Description = string.IsNullOrWhiteSpace(dto.Description) ? "لا يوجد وصف" : dto.Description;
             Phone = "—";
-            LogoPath = dto.LogoPath ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(dto.LogoPath))
+                LogoPath = $"{ApiConfig.BaseUrl.TrimEnd('/')}{dto.LogoPath}";
+            else
+                LogoPath = string.Empty;
+
             IsActive = dto.IsActive;
             CreatedAtText = dto.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt");
         }

@@ -83,15 +83,10 @@
                                TextColor="#374151" />
                         <Picker x:Name="RolePicker"
                                 Title="اختر الدور"
-                                HeightRequest="50"
+                                HeightRequest="70"
+                                FontSize="16"
                                 BackgroundColor="#F3F4F6"
-                                TextColor="#111827">
-                            <Picker.Items>
-                                <x:String>مالك</x:String>
-                                <x:String>مدير</x:String>
-                                <x:String>عامل</x:String>
-                            </Picker.Items>
-                        </Picker>
+                                TextColor="#111827" />
 
                         <Grid ColumnDefinitions="*,Auto"
                               ColumnSpacing="12"

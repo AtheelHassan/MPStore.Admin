@@ -75,7 +75,7 @@ public partial class StoreUsersList : ContentPage
 
     private async void OnAddUserClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync($"{nameof(AddStoreUser)}?storeId={_storeId}");
+        await Shell.Current.GoToAsync($"{AppShell.RouteAddStoreUser}?storeId={_storeId}");
     }
 
     private async void OnEdit(object sender, EventArgs e)
@@ -86,7 +86,7 @@ public partial class StoreUsersList : ContentPage
         if (user == null)
             return;
 
-        await Shell.Current.GoToAsync($"EditStoreUser?userId={user.Id}&storeId={_storeId}");
+        await Shell.Current.GoToAsync($"{AppShell.RouteEditStoreUser}?userId={user.Id}&storeId={_storeId}");
     }
 
     private async void OnDelete(object sender, EventArgs e)
@@ -107,9 +107,8 @@ public partial class StoreUsersList : ContentPage
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync($"{nameof(EditStore)}?storeId={_storeId}");
+        await Shell.Current.GoToAsync($"{AppShell.RouteEditStore}?storeId={_storeId}");
     }
-   
 
     private async void OnRefreshClicked(object sender, EventArgs e)
     {

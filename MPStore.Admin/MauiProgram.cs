@@ -25,6 +25,7 @@ namespace MPStore.Admin
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<StoresService>();
             builder.Services.AddSingleton<StoreUsersService>();
+            builder.Services.AddSingleton<StoreRolesService>();
 
 #if DEBUG
             builder.Logging.AddDebug();

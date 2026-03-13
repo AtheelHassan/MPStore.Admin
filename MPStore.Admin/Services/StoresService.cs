@@ -25,6 +25,52 @@ public class StoresService
         return await _http.GetFromJsonAsync<StoreDto>($"api/stores/{storeId}");
     }
 
+    public async Task<string?> UploadLogoAsync(string filePath, string? storeSlug = null, long? storeId = null)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+
+            await using var fileStream = File.OpenRead(filePath);
+            using var fileContent = new StreamContent(fileStream);
+
+            var extension = Path.GetExtension(filePath)?.ToLowerInvariant();
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                ".gif" => "image/gif",
+                ".svg" => "image/svg+xml",
+                _ => "application/octet-stream"
+            };
+
+            fileContent.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+
+            content.Add(fileContent, "file", Path.GetFileName(filePath));
+
+            if (!string.IsNullOrWhiteSpace(storeSlug))
+                content.Add(new StringContent(storeSlug.Trim()), "storeSlug");
+
+            if (storeId.HasValue && storeId.Value > 0)
+                content.Add(new StringContent(storeId.Value.ToString()), "storeId");
+
+            var response = await _http.PostAsync("api/stores/upload-logo", content);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var result = await response.Content.ReadFromJsonAsync<UploadLogoResponse>();
+
+            return result?.LogoPath;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<ServiceResult> CreateStoreAsync(CreateStoreRequest request)
     {
         try
@@ -93,6 +139,12 @@ public class StoresService
     {
         [JsonPropertyName("items")]
         public List<StoreDto>? Items { get; set; }
+    }
+
+    private sealed class UploadLogoResponse
+    {
+        [JsonPropertyName("logoPath")]
+        public string? LogoPath { get; set; }
     }
 
     private sealed class ApiErrorResponse
