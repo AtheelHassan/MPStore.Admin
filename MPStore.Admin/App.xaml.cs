@@ -6,6 +6,8 @@ namespace MPStore.Admin
     {
         public App()
         {
+
+            Preferences.Remove("AdminSession");
             InitializeComponent();
         }
 

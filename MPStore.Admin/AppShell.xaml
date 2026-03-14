@@ -9,8 +9,4 @@
                   ContentTemplate="{DataTemplate views:Login}"
                   Route="Login" />
 
-    <ShellContent Title="StoresList"
-                  ContentTemplate="{DataTemplate views:StoresList}"
-                  Route="StoresList" />
-
 </Shell>

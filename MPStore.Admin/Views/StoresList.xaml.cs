@@ -5,13 +5,13 @@ using System.Windows.Input;
 using MPStore.Admin.Helpers;
 using MPStore.Admin.Models.Stores;
 using MPStore.Admin.Services;
-using Microsoft.Maui.Storage;
 
 namespace MPStore.Admin.Views;
 
 public partial class StoresList : ContentPage, INotifyPropertyChanged
 {
     private readonly StoresService _storesService;
+    private readonly AuthService _authService;
     private bool _isBusy;
 
     public ObservableCollection<StoreListItemViewModel> Stores { get; } = new();
@@ -22,11 +22,12 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    public StoresList(StoresService storesService)
+    public StoresList(StoresService storesService, AuthService authService)
     {
         InitializeComponent();
 
         _storesService = storesService;
+        _authService = authService;
         BindingContext = this;
 
         StoresCollectionView.ItemsSource = Stores;
@@ -145,11 +146,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             if (!confirm)
                 return;
 
-            Preferences.Remove("AdminToken");
-            Preferences.Remove("AdminTokenExpireAt");
-            Preferences.Remove("AdminUserName");
-            Preferences.Remove("AdminId");
-
+            await _authService.LogoutAsync();
             await Shell.Current.GoToAsync("//Login");
         }
         catch

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MPStore.Admin.Helpers;
 using MPStore.Admin.Services;
+using MPStore.Admin.Views;
 
 namespace MPStore.Admin
 {
@@ -9,6 +10,7 @@ namespace MPStore.Admin
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -17,15 +19,57 @@ namespace MPStore.Admin
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton(new HttpClient
+            builder.Services.AddSingleton<AppShell>();
+
+            builder.Services.AddTransient<AuthHeaderHandler>();
+
+            builder.Services.AddHttpClient("ApiClient", client =>
             {
-                BaseAddress = new Uri(ApiConfig.BaseUrl)
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
             });
 
-            builder.Services.AddSingleton<AuthService>();
-            builder.Services.AddSingleton<StoresService>();
-            builder.Services.AddSingleton<StoreUsersService>();
-            builder.Services.AddSingleton<StoreRolesService>();
+            builder.Services.AddTransient<AuthService>(sp =>
+            {
+                var factory = sp.GetRequiredService<IHttpClientFactory>();
+                return new AuthService(factory.CreateClient("ApiClient"));
+            });
+
+            builder.Services.AddHttpClient<StoresService>(client =>
+            {
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+
+            builder.Services.AddHttpClient<StoreUsersService>(client =>
+            {
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+
+            builder.Services.AddHttpClient<StoreRolesService>(client =>
+            {
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+
+            builder.Services.AddHttpClient<AdminUsersService>(client =>
+            {
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+
+            builder.Services.AddTransient<Login>();
+            builder.Services.AddTransient<StoresList>();
+            builder.Services.AddTransient<AddStore>();
+            builder.Services.AddTransient<EditStore>();
+            builder.Services.AddTransient<StoreUsersList>();
+            builder.Services.AddTransient<AddStoreUser>();
+            builder.Services.AddTransient<EditStoreUser>();
 
 #if DEBUG
             builder.Logging.AddDebug();

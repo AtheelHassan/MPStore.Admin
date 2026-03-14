@@ -75,7 +75,9 @@
 
                     <Label x:Name="MessageLabel"
                            Text=""
-                           FontSize="13"
+                           FontSize="12"
+                           LineBreakMode="WordWrap"
+                           MaxLines="8"
                            HorizontalTextAlignment="Center"
                            TextColor="#DC2626"
                            IsVisible="False" />

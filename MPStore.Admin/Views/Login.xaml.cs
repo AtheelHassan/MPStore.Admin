@@ -1,4 +1,3 @@
-using Microsoft.Maui.Storage;
 using MPStore.Admin.Models.Auth;
 using MPStore.Admin.Services;
 
@@ -17,7 +16,7 @@ namespace MPStore.Admin.Views
             _authService = authService;
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -28,43 +27,24 @@ namespace MPStore.Admin.Views
 
             try
             {
-                var token = Preferences.Get("AdminToken", string.Empty);
-                var expireAtText = Preferences.Get("AdminTokenExpireAt", string.Empty);
+                var session = await _authService.GetSavedSessionAsync();
 
-                if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(expireAtText))
-                    return;
-
-                if (!DateTime.TryParse(
-                        expireAtText,
-                        null,
-                        System.Globalization.DateTimeStyles.RoundtripKind,
-                        out var expireAt))
-                    return;
-
-                if (expireAt <= DateTime.UtcNow)
+                if (session == null || string.IsNullOrWhiteSpace(session.Token))
                 {
-                    Preferences.Remove("AdminToken");
-                    Preferences.Remove("AdminTokenExpireAt");
-                    Preferences.Remove("AdminUserName");
-                    Preferences.Remove("AdminId");
+                    _checkedSavedLogin = false;
+                    return;
+                }
+
+                if (!session.IsActive)
+                {
+                    await _authService.LogoutAsync();
+                    _checkedSavedLogin = false;
                     return;
                 }
 
                 _navigating = true;
-
-                Dispatcher.Dispatch(async () =>
-                {
-                    try
-                    {
-                        await Task.Delay(150);
-                        await Shell.Current.GoToAsync("//StoresList");
-                    }
-                    catch
-                    {
-                        _navigating = false;
-                        _checkedSavedLogin = false;
-                    }
-                });
+                await Task.Delay(150);
+                await Shell.Current.GoToAsync(AppShell.RouteStoresList);
             }
             catch
             {
@@ -114,21 +94,10 @@ namespace MPStore.Admin.Views
                     return;
                 }
 
-                Preferences.Set("AdminToken", result.Token);
-
-                if (result.Admin != null)
-                {
-                    Preferences.Set("AdminUserName", result.Admin.Username ?? string.Empty);
-                    Preferences.Set("AdminId", result.Admin.Id);
-                }
-
-                var expireAt = DateTime.UtcNow.AddMinutes(result.ExpiresInMinutes);
-                Preferences.Set("AdminTokenExpireAt", expireAt.ToString("O"));
-
                 _navigating = true;
 
                 await DisplayAlert("نجاح", "تم تسجيل الدخول بنجاح.", "موافق");
-                await Shell.Current.GoToAsync("//StoresList");
+                await Shell.Current.GoToAsync(AppShell.RouteStoresList);
             }
             catch (Exception ex)
             {
