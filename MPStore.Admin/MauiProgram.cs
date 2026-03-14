@@ -63,6 +63,13 @@ namespace MPStore.Admin
             })
             .AddHttpMessageHandler<AuthHeaderHandler>();
 
+            builder.Services.AddHttpClient<AdminRolesService>(client =>
+            {
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+
             builder.Services.AddTransient<Login>();
             builder.Services.AddTransient<StoresList>();
             builder.Services.AddTransient<AddStore>();
@@ -70,6 +77,8 @@ namespace MPStore.Admin
             builder.Services.AddTransient<StoreUsersList>();
             builder.Services.AddTransient<AddStoreUser>();
             builder.Services.AddTransient<EditStoreUser>();
+            builder.Services.AddTransient<AdminUsersList>();
+            builder.Services.AddTransient<AdminRolesList>();
 
 #if DEBUG
             builder.Logging.AddDebug();

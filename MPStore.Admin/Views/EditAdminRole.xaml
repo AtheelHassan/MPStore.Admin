@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MPStore.Admin.Views.EditAdminRole"
+             Title="تعديل دور إداري"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F7F8FA"
+             FlowDirection="RightToLeft">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0"
+              Padding="20,18,20,12"
+              ColumnDefinitions="Auto,*"
+              ColumnSpacing="12"
+              BackgroundColor="White">
+
+            <Button Text="رجوع"
+                    HeightRequest="42"
+                    Padding="14,0"
+                    CornerRadius="12"
+                    BackgroundColor="#E5E7EB"
+                    TextColor="#111827"
+                    Clicked="OnBackClicked" />
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="4">
+                <Label Text="تعديل دور إداري"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#111827" />
+
+                <Label Text="تحديث بيانات الدور وصلاحياته الأساسية"
+                       FontSize="14"
+                       TextColor="#6B7280" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20"
+                                 Spacing="16">
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 14">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="اسم الدور"
+                               FontAttributes="Bold"
+                               TextColor="#374151" />
+                        <Entry x:Name="NameEntry"
+                               Placeholder="مثال: مدير النظام"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 14">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="الكود"
+                               FontAttributes="Bold"
+                               TextColor="#374151" />
+                        <Entry x:Name="CodeEntry"
+                               Placeholder="مثال: system_admin"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 14">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="الوصف"
+                               FontAttributes="Bold"
+                               TextColor="#374151" />
+                        <Editor x:Name="DescriptionEditor"
+                                AutoSize="TextChanges"
+                                HeightRequest="120"
+                                BackgroundColor="#F3F4F6"
+                                TextColor="#111827"
+                                PlaceholderColor="#9CA3AF" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 14">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="دور نظامي"
+                               VerticalOptions="Center"
+                               FontAttributes="Bold"
+                               TextColor="#374151" />
+                        <Switch x:Name="IsSystemRoleSwitch"
+                                Grid.Column="1" />
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 14">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="نشط"
+                               VerticalOptions="Center"
+                               FontAttributes="Bold"
+                               TextColor="#374151" />
+                        <Switch x:Name="IsActiveSwitch"
+                                Grid.Column="1" />
+                    </Grid>
+                </Border>
+
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   IsVisible="False"
+                                   IsRunning="False"
+                                   Color="#2563EB"
+                                   HorizontalOptions="Center" />
+
+                <Label x:Name="MessageLabel"
+                       IsVisible="False"
+                       TextColor="#DC2626"
+                       FontSize="13"
+                       HorizontalTextAlignment="Center" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              Padding="16,8,16,18"
+              BackgroundColor="#F7F8FA">
+            <Button Text="حفظ التعديلات"
+                    HeightRequest="50"
+                    CornerRadius="14"
+                    BackgroundColor="#2563EB"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    Clicked="OnSaveClicked" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

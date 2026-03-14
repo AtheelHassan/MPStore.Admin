@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MPStore.Admin.Views.StoresList"
-             Title="المتاجر"
+             x:Class="MPStore.Admin.Views.AdminRolesList"
+             Title="الأدوار الإدارية"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#F7F8FA"
              FlowDirection="RightToLeft">
@@ -11,45 +11,32 @@
 
         <Grid Grid.Row="0"
               Padding="20,18,20,12"
-              ColumnDefinitions="*,Auto,Auto,Auto,Auto"
-              ColumnSpacing="10"
+              ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="12"
               BackgroundColor="White">
 
-            <VerticalStackLayout Spacing="4">
-                <Label Text="إدارة المتاجر"
+            <Button Text="رجوع"
+                    HeightRequest="42"
+                    Padding="14,0"
+                    CornerRadius="12"
+                    BackgroundColor="#E5E7EB"
+                    TextColor="#111827"
+                    Clicked="OnBackClicked" />
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="4">
+                <Label Text="الأدوار الإدارية"
                        FontSize="28"
                        FontAttributes="Bold"
                        TextColor="#111827" />
 
-                <Label Text="عرض جميع المتاجر وإدارتها"
+                <Label Text="عرض وإدارة أدوار وصلاحيات الأدمن"
                        FontSize="14"
                        TextColor="#6B7280" />
             </VerticalStackLayout>
 
-            <Button Grid.Column="1"
-                    Text="إدارة الأدمن"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#7C3AED"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    Clicked="OnAdminUsersClicked" />
-
             <Button Grid.Column="2"
-                    Text="إدارة الأدوار"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#0F766E"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    Clicked="OnAdminRolesClicked" />
-
-            <Button Grid.Column="3"
-                    Text="إضافة متجر"
+                    Text="إضافة دور"
                     HeightRequest="46"
                     Padding="18,0"
                     CornerRadius="14"
@@ -57,36 +44,27 @@
                     TextColor="White"
                     FontAttributes="Bold"
                     VerticalOptions="Center"
-                    Clicked="OnAddStoreClicked" />
-
-            <Button Grid.Column="4"
-                    Text="تسجيل خروج"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#DC2626"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    Clicked="OnLogoutClicked" />
+                    Clicked="OnAddRoleClicked" />
         </Grid>
 
         <Grid Grid.Row="1"
               Padding="16,12,16,12">
-            <CollectionView x:Name="StoresCollectionView"
+
+            <CollectionView x:Name="RolesCollectionView"
                             SelectionMode="None"
                             ItemsLayout="VerticalList"
                             Margin="0,0,0,8">
+
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Spacing="10"
                                          HorizontalOptions="Center"
                                          VerticalOptions="Center">
-                        <Label Text="لا توجد متاجر لعرضها"
+                        <Label Text="لا توجد أدوار إدارية لعرضها"
                                FontSize="18"
                                FontAttributes="Bold"
                                TextColor="#374151"
                                HorizontalTextAlignment="Center" />
-                        <Label Text="أضف أول متجر ليظهر هنا"
+                        <Label Text="يمكنك إضافة أول دور من الزر العلوي"
                                FontSize="14"
                                TextColor="#6B7280"
                                HorizontalTextAlignment="Center" />
@@ -102,21 +80,26 @@
                                 StrokeShape="RoundRectangle 20">
 
                             <Grid RowDefinitions="Auto,Auto,Auto"
-                                  ColumnDefinitions="72,*,Auto"
+                                  ColumnDefinitions="58,*,Auto"
                                   ColumnSpacing="12"
                                   RowSpacing="10">
 
                                 <Border Grid.RowSpan="2"
                                         Grid.Column="0"
-                                        WidthRequest="72"
-                                        HeightRequest="72"
-                                        Padding="6"
-                                        BackgroundColor="#F3F4F6"
+                                        WidthRequest="58"
+                                        HeightRequest="58"
+                                        BackgroundColor="#EEF2FF"
                                         StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 18"
+                                        StrokeShape="RoundRectangle 16"
                                         VerticalOptions="Start">
-                                    <Image Source="{Binding LogoPath}"
-                                           Aspect="AspectFit" />
+                                    <Grid>
+                                        <Label Text="R"
+                                               FontSize="24"
+                                               FontAttributes="Bold"
+                                               TextColor="#2563EB"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Grid>
                                 </Border>
 
                                 <VerticalStackLayout Grid.Row="0"
@@ -127,7 +110,7 @@
                                            FontAttributes="Bold"
                                            TextColor="#111827" />
 
-                                    <Label Text="{Binding Slug}"
+                                    <Label Text="{Binding Code}"
                                            FontSize="13"
                                            TextColor="#6B7280" />
                                 </VerticalStackLayout>
@@ -135,15 +118,15 @@
                                 <Border Grid.Row="0"
                                         Grid.Column="2"
                                         Padding="10,6"
-                                        BackgroundColor="#E5F7EB"
+                                        BackgroundColor="{Binding StatusBackgroundColor}"
                                         StrokeThickness="0"
                                         HorizontalOptions="End"
                                         VerticalOptions="Start"
                                         StrokeShape="RoundRectangle 12">
-                                    <Label Text="{Binding IsActiveText}"
+                                    <Label Text="{Binding StatusText}"
                                            FontSize="12"
                                            FontAttributes="Bold"
-                                           TextColor="#15803D" />
+                                           TextColor="{Binding StatusTextColor}" />
                                 </Border>
 
                                 <VerticalStackLayout Grid.Row="1"
@@ -156,14 +139,14 @@
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2" />
 
-                                    <Label Text="{Binding Phone}"
+                                    <Label Text="{Binding TypeText}"
                                            FontSize="13"
                                            TextColor="#6B7280" />
                                 </VerticalStackLayout>
 
                                 <Grid Grid.Row="2"
                                       Grid.ColumnSpan="3"
-                                      ColumnDefinitions="*,Auto,Auto"
+                                      ColumnDefinitions="*,Auto,Auto,Auto"
                                       ColumnSpacing="10">
 
                                     <Label Text="{Binding CreatedAtText}"
@@ -172,6 +155,16 @@
                                            VerticalOptions="Center" />
 
                                     <Button Grid.Column="1"
+                                            Text="الصلاحيات"
+                                            HeightRequest="40"
+                                            Padding="14,0"
+                                            CornerRadius="12"
+                                            BackgroundColor="#EEF2FF"
+                                            TextColor="#3730A3"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.PermissionsCommand}"
+                                            CommandParameter="{Binding .}" />
+
+                                    <Button Grid.Column="2"
                                             Text="حذف"
                                             HeightRequest="40"
                                             Padding="14,0"
@@ -181,7 +174,7 @@
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
                                             CommandParameter="{Binding .}" />
 
-                                    <Button Grid.Column="2"
+                                    <Button Grid.Column="3"
                                             Text="تعديل"
                                             HeightRequest="40"
                                             Padding="14,0"

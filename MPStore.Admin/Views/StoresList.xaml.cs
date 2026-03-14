@@ -200,5 +200,17 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             IsActive = dto.IsActive;
             CreatedAtText = dto.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt");
         }
+
+       
+    }
+
+    private async void OnAdminUsersClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(AppShell.RouteAdminUsersList);
+    }
+
+    private async void OnAdminRolesClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(AppShell.RouteAdminRolesList);
     }
 }
