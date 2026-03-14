@@ -1,9 +1,9 @@
+using MPStore.Admin.Models.AdminUsers;
+using MPStore.Admin.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using MPStore.Admin.Models.AdminUsers;
-using MPStore.Admin.Services;
 
 namespace MPStore.Admin.Views;
 
@@ -190,7 +190,7 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(AppShell.RouteStoresList);
+        await Shell.Current.GoToAsync(AppShell.RouteDashboard);
     }
 
     private async void OnRefreshClicked(object sender, EventArgs e)

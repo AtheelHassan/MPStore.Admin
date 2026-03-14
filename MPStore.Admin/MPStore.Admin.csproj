@@ -93,6 +93,9 @@
 	  <MauiXaml Update="Views\AdminUsersList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Dashboard.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\EditAdminRole.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

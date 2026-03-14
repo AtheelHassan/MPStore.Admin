@@ -205,7 +205,7 @@ public partial class StoreUsersList : ContentPage, INotifyPropertyChanged
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync($"{AppShell.RouteEditStore}?storeId={_storeId}");
+        await Shell.Current.GoToAsync(AppShell.RouteDashboard);
     }
 
     private async void OnRefreshClicked(object sender, EventArgs e)

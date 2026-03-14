@@ -214,7 +214,7 @@ namespace MPStore.Admin.Views
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync(AppShell.RouteStoresList);
+            await Shell.Current.GoToAsync(AppShell.RouteDashboard);
         }
 
         private async void OnRefreshClicked(object sender, EventArgs e)

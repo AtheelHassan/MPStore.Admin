@@ -4,6 +4,8 @@ namespace MPStore.Admin
 {
     public partial class AppShell : Shell
     {
+        public const string RouteDashboard = "dashboard";
+
         public const string RouteStoresList = "stores-list";
         public const string RouteAddStore = "add-store";
         public const string RouteEditStore = "edit-store";
@@ -24,6 +26,8 @@ namespace MPStore.Admin
         public AppShell()
         {
             InitializeComponent();
+
+            Routing.RegisterRoute(RouteDashboard, typeof(Dashboard));
 
             Routing.RegisterRoute(RouteStoresList, typeof(StoresList));
             Routing.RegisterRoute(RouteAddStore, typeof(AddStore));

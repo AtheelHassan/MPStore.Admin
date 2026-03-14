@@ -20,12 +20,7 @@ namespace MPStore.Admin.Views
         {
             base.OnAppearing();
 
-            _navigating = false;
-
-            if (_isBusy)
-                return;
-
-            if (_checkedSavedLogin)
+            if (_isBusy || _navigating || _checkedSavedLogin)
                 return;
 
             _checkedSavedLogin = true;
@@ -34,22 +29,17 @@ namespace MPStore.Admin.Views
             {
                 var session = await _authService.GetSavedSessionAsync();
 
-                if (session == null || string.IsNullOrWhiteSpace(session.Token))
+                if (session == null || string.IsNullOrWhiteSpace(session.Token) || !session.IsActive)
                 {
-                    _checkedSavedLogin = false;
-                    return;
-                }
+                    if (session != null && !session.IsActive)
+                        await _authService.LogoutAsync();
 
-                if (!session.IsActive)
-                {
-                    await _authService.LogoutAsync();
                     _checkedSavedLogin = false;
                     return;
                 }
 
                 _navigating = true;
-                await Task.Delay(150);
-                await Shell.Current.GoToAsync($"//{AppShell.RouteStoresList}");
+                await Shell.Current.GoToAsync(AppShell.RouteDashboard);
             }
             catch
             {
@@ -99,11 +89,18 @@ namespace MPStore.Admin.Views
                     return;
                 }
 
+                var savedSession = await _authService.GetSavedSessionAsync();
+                if (savedSession == null || string.IsNullOrWhiteSpace(savedSession.Token))
+                {
+                    ShowMessage("تم تسجيل الدخول لكن تعذر حفظ الجلسة.");
+                    return;
+                }
+
                 _checkedSavedLogin = true;
                 _navigating = true;
 
                 await DisplayAlert("نجاح", "تم تسجيل الدخول بنجاح.", "موافق");
-                await Shell.Current.GoToAsync(AppShell.RouteStoresList);
+                await Shell.Current.GoToAsync(AppShell.RouteDashboard);
             }
             catch (Exception ex)
             {

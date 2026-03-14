@@ -15,30 +15,6 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
     private bool _isBusy;
     private bool _permissionsLoaded;
 
-    private bool _canViewAdminUsers;
-    public bool CanViewAdminUsers
-    {
-        get => _canViewAdminUsers;
-        set
-        {
-            if (_canViewAdminUsers == value) return;
-            _canViewAdminUsers = value;
-            OnPropertyChanged();
-        }
-    }
-
-    private bool _canViewAdminRoles;
-    public bool CanViewAdminRoles
-    {
-        get => _canViewAdminRoles;
-        set
-        {
-            if (_canViewAdminRoles == value) return;
-            _canViewAdminRoles = value;
-            OnPropertyChanged();
-        }
-    }
-
     private bool _canCreateStore;
     public bool CanCreateStore
     {
@@ -111,8 +87,6 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         if (_permissionsLoaded)
             return;
 
-        CanViewAdminUsers = await _authService.HasPermissionAsync("admin_users.view");
-        CanViewAdminRoles = await _authService.HasPermissionAsync("admin_roles.view");
         CanCreateStore = await _authService.HasPermissionAsync("stores.create");
         CanUpdateStore = await _authService.HasPermissionAsync("stores.update");
         CanDeleteStore = await _authService.HasPermissionAsync("stores.delete");
@@ -218,20 +192,9 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         await LoadStoresAsync();
     }
 
-    private async void OnLogoutClicked(object sender, EventArgs e)
+    private async void OnBackClicked(object sender, EventArgs e)
     {
-        try
-        {
-            bool confirm = await DisplayAlert("تأكيد", "هل تريد تسجيل الخروج؟", "نعم", "إلغاء");
-            if (!confirm)
-                return;
-
-            await _authService.LogoutAsync();
-            await Shell.Current.GoToAsync("//Login");
-        }
-        catch
-        {
-        }
+        await Shell.Current.GoToAsync(AppShell.RouteDashboard);
     }
 
     private void SetLoading(bool isLoading)
@@ -280,21 +243,5 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             IsActive = dto.IsActive;
             CreatedAtText = dto.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt");
         }
-    }
-
-    private async void OnAdminUsersClicked(object sender, EventArgs e)
-    {
-        if (!CanViewAdminUsers)
-            return;
-
-        await Shell.Current.GoToAsync(AppShell.RouteAdminUsersList);
-    }
-
-    private async void OnAdminRolesClicked(object sender, EventArgs e)
-    {
-        if (!CanViewAdminRoles)
-            return;
-
-        await Shell.Current.GoToAsync(AppShell.RouteAdminRolesList);
     }
 }

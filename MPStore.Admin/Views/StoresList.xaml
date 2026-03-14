@@ -4,80 +4,115 @@
              x:Class="MPStore.Admin.Views.StoresList"
              Title="المتاجر"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#F7F8FA"
+             BackgroundColor="#0f172a"
              FlowDirection="RightToLeft">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <ScrollView>
+        <VerticalStackLayout Padding="20"
+                             Spacing="20">
 
-        <!-- Header -->
-        <Grid Grid.Row="0"
-              Padding="20,18,20,12"
-              ColumnDefinitions="*,Auto,Auto,Auto,Auto"
-              ColumnSpacing="10"
-              BackgroundColor="White">
+            <Border BackgroundColor="#1e293b"
+                    StrokeThickness="0"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 16">
 
-            <VerticalStackLayout Spacing="4">
-                <Label Text="إدارة المتاجر"
-                       FontSize="28"
-                       FontAttributes="Bold"
-                       TextColor="#111827" />
+                <VerticalStackLayout Spacing="14">
 
-                <Label Text="عرض جميع المتاجر وإدارتها"
-                       FontSize="14"
-                       TextColor="#6B7280" />
-            </VerticalStackLayout>
+                    <Grid ColumnDefinitions="90,*"
+                          ColumnSpacing="14">
 
-            <Button Grid.Column="1"
-                    Text="إدارة الأدمن"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#7C3AED"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    IsVisible="{Binding CanViewAdminUsers}"
-                    Clicked="OnAdminUsersClicked" />
+                        <Border WidthRequest="90"
+                                HeightRequest="90"
+                                BackgroundColor="#334155"
+                                StrokeThickness="0"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                StrokeShape="RoundRectangle 18">
 
-            <Button Grid.Column="2"
-                    Text="إدارة الأدوار"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#0F766E"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    IsVisible="{Binding CanViewAdminRoles}"
-                    Clicked="OnAdminRolesClicked" />
+                            <Grid>
+                                <Label Text="🏬"
+                                       FontSize="34"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       TextColor="White" />
+                            </Grid>
+                        </Border>
 
-            <Button Grid.Column="3"
-                    Text="إضافة متجر"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#2563EB"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    IsVisible="{Binding CanCreateStore}"
-                    Clicked="OnAddStoreClicked" />
+                        <VerticalStackLayout Grid.Column="1"
+                                             VerticalOptions="Center"
+                                             Spacing="6">
+                            <Label Text="إدارة المتاجر"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
 
-            <Button Grid.Column="4"
-                    Text="تسجيل خروج"
-                    HeightRequest="46"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    BackgroundColor="#DC2626"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    Clicked="OnLogoutClicked" />
-        </Grid>
+                            <Label Text="عرض جميع المتاجر وإدارتها"
+                                   FontSize="14"
+                                   TextColor="#cbd5e1" />
 
-        <!-- Stores List -->
-        <Grid Grid.Row="1"
-              Padding="16,12,16,12">
+                            <Label Text="يمكنك فتح المتجر وتعديله أو حذفه حسب الصلاحيات"
+                                   FontSize="13"
+                                   TextColor="#60a5fa" />
+                        </VerticalStackLayout>
+
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="14">
+
+                <Button Grid.Column="0"
+                        Text="لوحة التحكم"
+                        HeightRequest="48"
+                        CornerRadius="14"
+                        BackgroundColor="#334155"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnBackClicked" />
+
+                <Button Grid.Column="1"
+                        Text="إضافة متجر"
+                        HeightRequest="48"
+                        CornerRadius="14"
+                        BackgroundColor="#2563EB"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        IsVisible="{Binding CanCreateStore}"
+                        Clicked="OnAddStoreClicked" />
+            </Grid>
+
+            <Border BackgroundColor="#1e293b"
+                    StrokeThickness="0"
+                    Padding="16"
+                    StrokeShape="RoundRectangle 16">
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="قائمة المتاجر"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+
+                        <Label Text="جميع المتاجر المتاحة في النظام"
+                               FontSize="13"
+                               TextColor="#cbd5e1" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="تحديث"
+                            HeightRequest="42"
+                            Padding="16,0"
+                            CornerRadius="12"
+                            BackgroundColor="#475569"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            Clicked="OnRefreshClicked" />
+                </Grid>
+            </Border>
 
             <CollectionView x:Name="StoresCollectionView"
                             SelectionMode="None"
@@ -91,12 +126,12 @@
                         <Label Text="لا توجد متاجر لعرضها"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="#374151"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
 
                         <Label Text="أضف أول متجر ليظهر هنا"
                                FontSize="14"
-                               TextColor="#6B7280"
+                               TextColor="#cbd5e1"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
@@ -105,7 +140,7 @@
                     <DataTemplate>
 
                         <Border StrokeThickness="0"
-                                BackgroundColor="White"
+                                BackgroundColor="#1e293b"
                                 Padding="16"
                                 Margin="0,0,0,12"
                                 StrokeShape="RoundRectangle 20">
@@ -115,13 +150,12 @@
                                   ColumnSpacing="12"
                                   RowSpacing="10">
 
-                                <!-- Logo -->
                                 <Border Grid.RowSpan="2"
                                         Grid.Column="0"
                                         WidthRequest="72"
                                         HeightRequest="72"
                                         Padding="6"
-                                        BackgroundColor="#F3F4F6"
+                                        BackgroundColor="#334155"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 18"
                                         VerticalOptions="Start">
@@ -131,7 +165,6 @@
 
                                 </Border>
 
-                                <!-- Name -->
                                 <VerticalStackLayout Grid.Row="0"
                                                      Grid.Column="1"
                                                      Spacing="4">
@@ -139,15 +172,14 @@
                                     <Label Text="{Binding Name}"
                                            FontSize="18"
                                            FontAttributes="Bold"
-                                           TextColor="#111827" />
+                                           TextColor="White" />
 
                                     <Label Text="{Binding Slug}"
                                            FontSize="13"
-                                           TextColor="#6B7280" />
+                                           TextColor="#cbd5e1" />
 
                                 </VerticalStackLayout>
 
-                                <!-- Status -->
                                 <Border Grid.Row="0"
                                         Grid.Column="2"
                                         Padding="10,6"
@@ -164,7 +196,6 @@
 
                                 </Border>
 
-                                <!-- Description -->
                                 <VerticalStackLayout Grid.Row="1"
                                                      Grid.Column="1"
                                                      Grid.ColumnSpan="2"
@@ -172,17 +203,16 @@
 
                                     <Label Text="{Binding Description}"
                                            FontSize="14"
-                                           TextColor="#374151"
+                                           TextColor="#e2e8f0"
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2" />
 
                                     <Label Text="{Binding Phone}"
                                            FontSize="13"
-                                           TextColor="#6B7280" />
+                                           TextColor="#cbd5e1" />
 
                                 </VerticalStackLayout>
 
-                                <!-- Actions -->
                                 <Grid Grid.Row="2"
                                       Grid.ColumnSpan="3"
                                       ColumnDefinitions="*,Auto,Auto"
@@ -190,7 +220,7 @@
 
                                     <Label Text="{Binding CreatedAtText}"
                                            FontSize="12"
-                                           TextColor="#9CA3AF"
+                                           TextColor="#94a3b8"
                                            VerticalOptions="Center" />
 
                                     <Button Grid.Column="1"
@@ -198,7 +228,7 @@
                                             HeightRequest="40"
                                             Padding="14,0"
                                             CornerRadius="12"
-                                            BackgroundColor="#DC2626"
+                                            BackgroundColor="#7f1d1d"
                                             TextColor="White"
                                             IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanDeleteStore}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
@@ -229,7 +259,7 @@
             <ActivityIndicator x:Name="LoadingIndicator"
                                IsVisible="False"
                                IsRunning="False"
-                               Color="#2563EB"
+                               Color="White"
                                WidthRequest="50"
                                HeightRequest="50"
                                HorizontalOptions="Center"
@@ -237,29 +267,12 @@
 
             <Label x:Name="MessageLabel"
                    IsVisible="False"
-                   TextColor="#DC2626"
+                   TextColor="#fca5a5"
                    FontSize="13"
                    HorizontalTextAlignment="Center"
-                   VerticalOptions="End"
                    Margin="20,0,20,10" />
 
-        </Grid>
-
-        <!-- Refresh -->
-        <Grid Grid.Row="2"
-              Padding="16,8,16,18"
-              BackgroundColor="#F7F8FA">
-
-            <Button Text="تحديث القائمة"
-                    HeightRequest="48"
-                    CornerRadius="14"
-                    BackgroundColor="White"
-                    TextColor="#111827"
-                    FontAttributes="Bold"
-                    Clicked="OnRefreshClicked" />
-
-        </Grid>
-
-    </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>
