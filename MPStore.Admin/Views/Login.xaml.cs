@@ -20,10 +20,26 @@ namespace MPStore.Admin.Views
         {
             base.OnAppearing();
 
-            if (_isBusy || _navigating || _checkedSavedLogin)
-                return;
+            _navigating = false;
+            _isBusy = false;
 
-            _checkedSavedLogin = true;
+            LoadingIndicator.IsVisible = false;
+            LoadingIndicator.IsRunning = false;
+
+            LoginButton.IsEnabled = true;
+            UserNameEntry.IsEnabled = true;
+            PasswordEntry.IsEnabled = true;
+
+            MessageLabel.IsVisible = false;
+            MessageLabel.Text = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(UserNameEntry.Text))
+                UserNameEntry.Text = string.Empty;
+
+            PasswordEntry.Text = string.Empty;
+
+            if (_checkedSavedLogin)
+                return;
 
             try
             {
@@ -34,11 +50,12 @@ namespace MPStore.Admin.Views
                     if (session != null && !session.IsActive)
                         await _authService.LogoutAsync();
 
-                    _checkedSavedLogin = false;
                     return;
                 }
 
+                _checkedSavedLogin = true;
                 _navigating = true;
+
                 await Shell.Current.GoToAsync(AppShell.RouteDashboard);
             }
             catch
