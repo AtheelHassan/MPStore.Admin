@@ -9,6 +9,7 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
 
+        <!-- Header -->
         <Grid Grid.Row="0"
               Padding="20,18,20,12"
               ColumnDefinitions="*,Auto,Auto,Auto,Auto"
@@ -35,6 +36,7 @@
                     TextColor="White"
                     FontAttributes="Bold"
                     VerticalOptions="Center"
+                    IsVisible="{Binding CanViewAdminUsers}"
                     Clicked="OnAdminUsersClicked" />
 
             <Button Grid.Column="2"
@@ -46,6 +48,7 @@
                     TextColor="White"
                     FontAttributes="Bold"
                     VerticalOptions="Center"
+                    IsVisible="{Binding CanViewAdminRoles}"
                     Clicked="OnAdminRolesClicked" />
 
             <Button Grid.Column="3"
@@ -57,6 +60,7 @@
                     TextColor="White"
                     FontAttributes="Bold"
                     VerticalOptions="Center"
+                    IsVisible="{Binding CanCreateStore}"
                     Clicked="OnAddStoreClicked" />
 
             <Button Grid.Column="4"
@@ -71,12 +75,15 @@
                     Clicked="OnLogoutClicked" />
         </Grid>
 
+        <!-- Stores List -->
         <Grid Grid.Row="1"
               Padding="16,12,16,12">
+
             <CollectionView x:Name="StoresCollectionView"
                             SelectionMode="None"
                             ItemsLayout="VerticalList"
                             Margin="0,0,0,8">
+
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Spacing="10"
                                          HorizontalOptions="Center"
@@ -86,6 +93,7 @@
                                FontAttributes="Bold"
                                TextColor="#374151"
                                HorizontalTextAlignment="Center" />
+
                         <Label Text="أضف أول متجر ليظهر هنا"
                                FontSize="14"
                                TextColor="#6B7280"
@@ -95,6 +103,7 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
+
                         <Border StrokeThickness="0"
                                 BackgroundColor="White"
                                 Padding="16"
@@ -106,6 +115,7 @@
                                   ColumnSpacing="12"
                                   RowSpacing="10">
 
+                                <!-- Logo -->
                                 <Border Grid.RowSpan="2"
                                         Grid.Column="0"
                                         WidthRequest="72"
@@ -115,13 +125,17 @@
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 18"
                                         VerticalOptions="Start">
+
                                     <Image Source="{Binding LogoPath}"
                                            Aspect="AspectFit" />
+
                                 </Border>
 
+                                <!-- Name -->
                                 <VerticalStackLayout Grid.Row="0"
                                                      Grid.Column="1"
                                                      Spacing="4">
+
                                     <Label Text="{Binding Name}"
                                            FontSize="18"
                                            FontAttributes="Bold"
@@ -130,8 +144,10 @@
                                     <Label Text="{Binding Slug}"
                                            FontSize="13"
                                            TextColor="#6B7280" />
+
                                 </VerticalStackLayout>
 
+                                <!-- Status -->
                                 <Border Grid.Row="0"
                                         Grid.Column="2"
                                         Padding="10,6"
@@ -140,16 +156,20 @@
                                         HorizontalOptions="End"
                                         VerticalOptions="Start"
                                         StrokeShape="RoundRectangle 12">
+
                                     <Label Text="{Binding IsActiveText}"
                                            FontSize="12"
                                            FontAttributes="Bold"
                                            TextColor="#15803D" />
+
                                 </Border>
 
+                                <!-- Description -->
                                 <VerticalStackLayout Grid.Row="1"
                                                      Grid.Column="1"
                                                      Grid.ColumnSpan="2"
                                                      Spacing="6">
+
                                     <Label Text="{Binding Description}"
                                            FontSize="14"
                                            TextColor="#374151"
@@ -159,8 +179,10 @@
                                     <Label Text="{Binding Phone}"
                                            FontSize="13"
                                            TextColor="#6B7280" />
+
                                 </VerticalStackLayout>
 
+                                <!-- Actions -->
                                 <Grid Grid.Row="2"
                                       Grid.ColumnSpan="3"
                                       ColumnDefinitions="*,Auto,Auto"
@@ -178,6 +200,7 @@
                                             CornerRadius="12"
                                             BackgroundColor="#DC2626"
                                             TextColor="White"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanDeleteStore}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
                                             CommandParameter="{Binding .}" />
 
@@ -188,14 +211,19 @@
                                             CornerRadius="12"
                                             BackgroundColor="#2563EB"
                                             TextColor="White"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanUpdateStore}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCommand}"
                                             CommandParameter="{Binding .}" />
+
                                 </Grid>
 
                             </Grid>
+
                         </Border>
+
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+
             </CollectionView>
 
             <ActivityIndicator x:Name="LoadingIndicator"
@@ -214,11 +242,14 @@
                    HorizontalTextAlignment="Center"
                    VerticalOptions="End"
                    Margin="20,0,20,10" />
+
         </Grid>
 
+        <!-- Refresh -->
         <Grid Grid.Row="2"
               Padding="16,8,16,18"
               BackgroundColor="#F7F8FA">
+
             <Button Text="تحديث القائمة"
                     HeightRequest="48"
                     CornerRadius="14"
@@ -226,7 +257,9 @@
                     TextColor="#111827"
                     FontAttributes="Bold"
                     Clicked="OnRefreshClicked" />
+
         </Grid>
 
     </Grid>
+
 </ContentPage>

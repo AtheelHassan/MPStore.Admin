@@ -9,8 +9,10 @@ namespace MPStore.Admin.Views
     {
         private readonly StoreUsersService _storeUsersService;
         private readonly StoreRolesService _storeRolesService;
+        private readonly AuthService _authService;
         private bool _isBusy;
         private bool _rolesLoaded;
+        private bool _canCreateStoreUser;
         private long _storeId;
 
         private readonly List<StoreRoleDto> _roles = new();
@@ -25,16 +27,25 @@ namespace MPStore.Admin.Views
             }
         }
 
-        public AddStoreUser(StoreUsersService storeUsersService, StoreRolesService storeRolesService)
+        public AddStoreUser(
+            StoreUsersService storeUsersService,
+            StoreRolesService storeRolesService,
+            AuthService authService)
         {
             InitializeComponent();
             _storeUsersService = storeUsersService;
             _storeRolesService = storeRolesService;
+            _authService = authService;
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            await LoadPermissionAsync();
+
+            if (!_canCreateStoreUser)
+                return;
 
             if (_storeId <= 0 || _rolesLoaded)
                 return;
@@ -42,9 +53,34 @@ namespace MPStore.Admin.Views
             await LoadRolesAsync();
         }
 
+        private async Task LoadPermissionAsync()
+        {
+            try
+            {
+                _canCreateStoreUser = await _authService.HasPermissionAsync("store_users.create");
+            }
+            catch
+            {
+                _canCreateStoreUser = false;
+            }
+
+            SaveButton.IsVisible = _canCreateStoreUser;
+
+            if (!_canCreateStoreUser)
+            {
+                SetEditorsEnabled(false);
+                ShowMessage("ليس لديك صلاحية لإضافة عامل.");
+            }
+            else
+            {
+                SetEditorsEnabled(!_isBusy);
+                MessageLabel.IsVisible = false;
+            }
+        }
+
         private async Task LoadRolesAsync()
         {
-            if (_isBusy)
+            if (_isBusy || !_canCreateStoreUser)
                 return;
 
             try
@@ -93,7 +129,7 @@ namespace MPStore.Admin.Views
 
         private async void OnSaveClicked(object sender, EventArgs e)
         {
-            if (_isBusy)
+            if (_isBusy || !_canCreateStoreUser)
                 return;
 
             MessageLabel.IsVisible = false;
@@ -183,12 +219,17 @@ namespace MPStore.Admin.Views
             LoadingIndicator.IsVisible = value;
             LoadingIndicator.IsRunning = value;
 
-            SaveButton.IsEnabled = !value;
-            FullNameEntry.IsEnabled = !value;
-            PhoneEntry.IsEnabled = !value;
-            PasswordEntry.IsEnabled = !value;
-            RolePicker.IsEnabled = !value;
-            IsActiveSwitch.IsEnabled = !value;
+            SaveButton.IsEnabled = _canCreateStoreUser && !value;
+            SetEditorsEnabled(_canCreateStoreUser && !value);
+        }
+
+        private void SetEditorsEnabled(bool value)
+        {
+            FullNameEntry.IsEnabled = value;
+            PhoneEntry.IsEnabled = value;
+            PasswordEntry.IsEnabled = value;
+            RolePicker.IsEnabled = value;
+            IsActiveSwitch.IsEnabled = value;
         }
 
         private void ShowMessage(string message)

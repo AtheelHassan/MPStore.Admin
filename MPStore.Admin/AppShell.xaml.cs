@@ -34,8 +34,8 @@ namespace MPStore.Admin
             Routing.RegisterRoute(RouteEditStoreUser, typeof(EditStoreUser));
 
             Routing.RegisterRoute(RouteAdminUsersList, typeof(AdminUsersList));
-            // Routing.RegisterRoute(RouteAddAdminUser, typeof(AddAdminUser));
-            // Routing.RegisterRoute(RouteEditAdminUser, typeof(EditAdminUser));
+            Routing.RegisterRoute(RouteAddAdminUser, typeof(AddAdminUser));
+            Routing.RegisterRoute(RouteEditAdminUser, typeof(EditAdminUser));
 
             Routing.RegisterRoute(RouteAdminRolesList, typeof(AdminRolesList));
             Routing.RegisterRoute(RouteAddAdminRole, typeof(AddAdminRole));

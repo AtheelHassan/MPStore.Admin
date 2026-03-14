@@ -10,7 +10,45 @@ namespace MPStore.Admin.Views;
 public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
 {
     private readonly AdminUsersService _adminUsersService;
+    private readonly AuthService _authService;
     private bool _isBusy;
+    private bool _permissionsLoaded;
+
+    private bool _canCreateAdminUser;
+    public bool CanCreateAdminUser
+    {
+        get => _canCreateAdminUser;
+        set
+        {
+            if (_canCreateAdminUser == value) return;
+            _canCreateAdminUser = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    private bool _canUpdateAdminUser;
+    public bool CanUpdateAdminUser
+    {
+        get => _canUpdateAdminUser;
+        set
+        {
+            if (_canUpdateAdminUser == value) return;
+            _canUpdateAdminUser = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    private bool _canDeleteAdminUser;
+    public bool CanDeleteAdminUser
+    {
+        get => _canDeleteAdminUser;
+        set
+        {
+            if (_canDeleteAdminUser == value) return;
+            _canDeleteAdminUser = value;
+            RaisePropertyChanged();
+        }
+    }
 
     public ObservableCollection<AdminUserItemViewModel> AdminUsers { get; } = new();
 
@@ -20,11 +58,12 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    public AdminUsersList(AdminUsersService adminUsersService)
+    public AdminUsersList(AdminUsersService adminUsersService, AuthService authService)
     {
         InitializeComponent();
 
         _adminUsersService = adminUsersService;
+        _authService = authService;
         BindingContext = this;
 
         AdminsCollectionView.ItemsSource = AdminUsers;
@@ -37,7 +76,20 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await EnsurePermissionsLoadedAsync();
         await LoadAdminsAsync();
+    }
+
+    private async Task EnsurePermissionsLoadedAsync()
+    {
+        if (_permissionsLoaded)
+            return;
+
+        CanCreateAdminUser = await _authService.HasPermissionAsync("admin_users.create");
+        CanUpdateAdminUser = await _authService.HasPermissionAsync("admin_users.update");
+        CanDeleteAdminUser = await _authService.HasPermissionAsync("admin_users.delete");
+
+        _permissionsLoaded = true;
     }
 
     private async Task LoadAdminsAsync()
@@ -51,6 +103,7 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
 
             LoadingIndicator.IsVisible = true;
             LoadingIndicator.IsRunning = true;
+            MessageLabel.IsVisible = false;
 
             AdminUsers.Clear();
 
@@ -64,7 +117,7 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            await DisplayAlert("خطأ", ex.Message, "موافق");
+            await DisplayAlertAsync("خطأ", ex.Message, "موافق");
         }
         finally
         {
@@ -76,22 +129,25 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
 
     private async Task EditAdminAsync(AdminUserItemViewModel? item)
     {
-        if (item == null) return;
+        if (item == null || !CanUpdateAdminUser)
+            return;
 
-        await Shell.Current.GoToAsync($"{AppShell.RouteEditAdminUser}?id={item.Id}");
+        await Shell.Current.GoToAsync($"{AppShell.RouteEditAdminUser}?userId={item.Id}");
     }
 
     private async Task DeleteAdminAsync(AdminUserItemViewModel? item)
     {
-        if (item == null) return;
+        if (item == null || !CanDeleteAdminUser)
+            return;
 
-        var confirm = await DisplayAlert(
+        var confirm = await DisplayAlertAsync(
             "تأكيد",
             $"هل تريد حذف الأدمن {item.Username} ؟",
             "نعم",
             "إلغاء");
 
-        if (!confirm) return;
+        if (!confirm)
+            return;
 
         var success = await _adminUsersService.DeleteAsync(item.Id);
 
@@ -101,13 +157,14 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
         }
         else
         {
-            await DisplayAlert("خطأ", "فشل حذف الأدمن", "موافق");
+            await DisplayAlertAsync("خطأ", "فشل حذف الأدمن", "موافق");
         }
     }
 
     private async Task ToggleActiveAsync(AdminUserItemViewModel? item)
     {
-        if (item == null) return;
+        if (item == null || !CanUpdateAdminUser)
+            return;
 
         var newState = !item.IsActive;
 
@@ -119,18 +176,21 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
         }
         else
         {
-            await DisplayAlert("خطأ", "فشل تحديث الحالة", "موافق");
+            await DisplayAlertAsync("خطأ", "فشل تحديث الحالة", "موافق");
         }
     }
 
     private async void OnAddAdminClicked(object sender, EventArgs e)
     {
+        if (!CanCreateAdminUser)
+            return;
+
         await Shell.Current.GoToAsync(AppShell.RouteAddAdminUser);
     }
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("..");
+        await Shell.Current.GoToAsync(AppShell.RouteStoresList);
     }
 
     private async void OnRefreshClicked(object sender, EventArgs e)
@@ -138,15 +198,24 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
         await LoadAdminsAsync();
     }
 
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private static Task DisplayAlertAsync(string title, string message, string cancel)
+    {
+        return Application.Current?.Windows.FirstOrDefault()?.Page?.DisplayAlert(title, message, cancel)
+               ?? Task.CompletedTask;
     }
 
     public sealed class AdminUserItemViewModel : INotifyPropertyChanged
     {
         public long Id { get; }
         public string Username { get; }
+        public string DisplayName { get; }
+        public string Email { get; }
+        public string RoleName { get; }
         public DateTime CreatedAtUtc { get; }
 
         private bool _isActive;
@@ -157,22 +226,27 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
             private set
             {
                 _isActive = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(StatusText));
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(StatusText));
+                RaisePropertyChanged(nameof(StatusBackgroundColor));
+                RaisePropertyChanged(nameof(StatusTextColor));
             }
         }
 
         public string StatusText => IsActive ? "نشط" : "موقوف";
-
-        public string CreatedAtText =>
-            CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
+        public string StatusBackgroundColor => IsActive ? "#E5F7EB" : "#FEE2E2";
+        public string StatusTextColor => IsActive ? "#15803D" : "#B91C1C";
+        public string CreatedAtText => CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public AdminUserItemViewModel(AdminUserDto dto)
         {
             Id = dto.Id;
-            Username = dto.Username ?? "";
+            Username = dto.Username ?? string.Empty;
+            DisplayName = string.IsNullOrWhiteSpace(dto.DisplayName) ? "بدون اسم عرض" : dto.DisplayName!;
+            Email = string.IsNullOrWhiteSpace(dto.Email) ? "لا يوجد بريد إلكتروني" : dto.Email!;
+            RoleName = $"Role #{dto.Role}";
             CreatedAtUtc = dto.CreatedAtUtc;
             _isActive = dto.IsActive;
         }
@@ -182,7 +256,7 @@ public partial class AdminUsersList : ContentPage, INotifyPropertyChanged
             IsActive = value;
         }
 
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

@@ -10,7 +10,13 @@ namespace MPStore.Admin.Views
     public partial class AdminRolesList : ContentPage, INotifyPropertyChanged
     {
         private readonly AdminRolesService _service;
+        private readonly AuthService _authService;
         private bool _isBusy;
+
+        private bool _canCreateAdminRole;
+        private bool _canUpdateAdminRole;
+        private bool _canDeleteAdminRole;
+        private bool _canManageAdminRolePermissions;
 
         public ObservableCollection<AdminRoleItemViewModel> Roles { get; } = new();
 
@@ -18,13 +24,58 @@ namespace MPStore.Admin.Views
         public ICommand DeleteCommand { get; }
         public ICommand PermissionsCommand { get; }
 
+        public bool CanCreateAdminRole
+        {
+            get => _canCreateAdminRole;
+            set
+            {
+                if (_canCreateAdminRole == value) return;
+                _canCreateAdminRole = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CanUpdateAdminRole
+        {
+            get => _canUpdateAdminRole;
+            set
+            {
+                if (_canUpdateAdminRole == value) return;
+                _canUpdateAdminRole = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CanDeleteAdminRole
+        {
+            get => _canDeleteAdminRole;
+            set
+            {
+                if (_canDeleteAdminRole == value) return;
+                _canDeleteAdminRole = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CanManageAdminRolePermissions
+        {
+            get => _canManageAdminRolePermissions;
+            set
+            {
+                if (_canManageAdminRolePermissions == value) return;
+                _canManageAdminRolePermissions = value;
+                OnPropertyChanged();
+            }
+        }
+
         public new event PropertyChangedEventHandler? PropertyChanged;
 
-        public AdminRolesList(AdminRolesService service)
+        public AdminRolesList(AdminRolesService service, AuthService authService)
         {
             InitializeComponent();
 
             _service = service;
+            _authService = authService;
             BindingContext = this;
 
             RolesCollectionView.ItemsSource = Roles;
@@ -37,7 +88,30 @@ namespace MPStore.Admin.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            await LoadPermissionsAsync();
             await LoadRolesAsync();
+        }
+
+        private async Task LoadPermissionsAsync()
+        {
+            try
+            {
+                CanCreateAdminRole = await _authService.HasPermissionAsync("admin_roles.create");
+                CanUpdateAdminRole = await _authService.HasPermissionAsync("admin_roles.update");
+                CanDeleteAdminRole = await _authService.HasPermissionAsync("admin_roles.delete");
+
+                var canViewPermissions = await _authService.HasPermissionAsync("admin_role_permissions.view");
+                var canUpdatePermissions = await _authService.HasPermissionAsync("admin_role_permissions.update");
+                CanManageAdminRolePermissions = canViewPermissions || canUpdatePermissions;
+            }
+            catch
+            {
+                CanCreateAdminRole = false;
+                CanUpdateAdminRole = false;
+                CanDeleteAdminRole = false;
+                CanManageAdminRolePermissions = false;
+            }
         }
 
         private async Task LoadRolesAsync()
@@ -74,7 +148,7 @@ namespace MPStore.Admin.Views
 
         private async Task EditRoleAsync(AdminRoleItemViewModel? item)
         {
-            if (item == null)
+            if (item == null || !CanUpdateAdminRole)
                 return;
 
             await Shell.Current.GoToAsync($"{AppShell.RouteEditAdminRole}?roleId={item.Id}");
@@ -82,7 +156,7 @@ namespace MPStore.Admin.Views
 
         private async Task DeleteRoleAsync(AdminRoleItemViewModel? item)
         {
-            if (item == null || _isBusy)
+            if (item == null || _isBusy || !CanDeleteAdminRole)
                 return;
 
             bool confirm = await DisplayAlert(
@@ -124,7 +198,7 @@ namespace MPStore.Admin.Views
 
         private async Task OpenPermissionsAsync(AdminRoleItemViewModel? item)
         {
-            if (item == null)
+            if (item == null || !CanManageAdminRolePermissions)
                 return;
 
             await Shell.Current.GoToAsync($"{AppShell.RouteAdminRolePermissions}?roleId={item.Id}");
@@ -132,6 +206,9 @@ namespace MPStore.Admin.Views
 
         private async void OnAddRoleClicked(object sender, EventArgs e)
         {
+            if (!CanCreateAdminRole)
+                return;
+
             await Shell.Current.GoToAsync(AppShell.RouteAddAdminRole);
         }
 

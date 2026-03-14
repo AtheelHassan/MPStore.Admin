@@ -10,8 +10,10 @@ namespace MPStore.Admin.Views
     {
         private readonly StoreUsersService _service;
         private readonly StoreRolesService _storeRolesService;
+        private readonly AuthService _authService;
         private bool _isBusy;
         private bool _rolesLoaded;
+        private bool _canUpdateStoreUser;
 
         private long _userId;
         private long _storeId;
@@ -38,11 +40,12 @@ namespace MPStore.Admin.Views
             }
         }
 
-        public EditStoreUser(StoreUsersService service, StoreRolesService storeRolesService)
+        public EditStoreUser(StoreUsersService service, StoreRolesService storeRolesService, AuthService authService)
         {
             InitializeComponent();
             _service = service;
             _storeRolesService = storeRolesService;
+            _authService = authService;
         }
 
         protected override async void OnAppearing()
@@ -52,7 +55,37 @@ namespace MPStore.Admin.Views
             if (_storeId <= 0 || _userId <= 0)
                 return;
 
+            await LoadPermissionAsync();
+
+            if (!_canUpdateStoreUser)
+                return;
+
             await LoadRolesAndUserAsync();
+        }
+
+        private async Task LoadPermissionAsync()
+        {
+            try
+            {
+                _canUpdateStoreUser = await _authService.HasPermissionAsync("store_users.update");
+            }
+            catch
+            {
+                _canUpdateStoreUser = false;
+            }
+
+            SaveButton.IsVisible = _canUpdateStoreUser;
+
+            if (!_canUpdateStoreUser)
+            {
+                SetEditorsEnabled(false);
+                ShowMessage("ليس لديك صلاحية لتعديل العامل.");
+            }
+            else
+            {
+                SetEditorsEnabled(!_isBusy);
+                MessageLabel.IsVisible = false;
+            }
         }
 
         private async Task LoadRolesAndUserAsync()
@@ -149,7 +182,7 @@ namespace MPStore.Admin.Views
 
         private async void OnSaveClicked(object sender, EventArgs e)
         {
-            if (_isBusy)
+            if (_isBusy || !_canUpdateStoreUser)
                 return;
 
             MessageLabel.IsVisible = false;
@@ -228,12 +261,17 @@ namespace MPStore.Admin.Views
             LoadingIndicator.IsVisible = value;
             LoadingIndicator.IsRunning = value;
 
-            SaveButton.IsEnabled = !value;
-            FullNameEntry.IsEnabled = !value;
-            PhoneEntry.IsEnabled = !value;
-            PasswordEntry.IsEnabled = !value;
-            RolePicker.IsEnabled = !value;
-            IsActiveSwitch.IsEnabled = !value;
+            SaveButton.IsEnabled = _canUpdateStoreUser && !value;
+            SetEditorsEnabled(_canUpdateStoreUser && !value);
+        }
+
+        private void SetEditorsEnabled(bool value)
+        {
+            FullNameEntry.IsEnabled = value;
+            PhoneEntry.IsEnabled = value;
+            PasswordEntry.IsEnabled = value;
+            RolePicker.IsEnabled = value;
+            IsActiveSwitch.IsEnabled = value;
         }
 
         private void ShowMessage(string message)

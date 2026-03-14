@@ -7,14 +7,43 @@ namespace MPStore.Admin.Views
     public partial class AddStore : ContentPage
     {
         private readonly StoresService _storesService;
+        private readonly AuthService _authService;
         private bool _isBusy;
+        private bool _canCreateStore;
 
         private string? _selectedImagePath;
 
-        public AddStore(StoresService storesService)
+        public AddStore(StoresService storesService, AuthService authService)
         {
             InitializeComponent();
             _storesService = storesService;
+            _authService = authService;
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await LoadPermissionAsync();
+        }
+
+        private async Task LoadPermissionAsync()
+        {
+            try
+            {
+                _canCreateStore = await _authService.HasPermissionAsync("stores.create");
+            }
+            catch
+            {
+                _canCreateStore = false;
+            }
+
+            SaveButton.IsVisible = _canCreateStore;
+            SaveButton.IsEnabled = _canCreateStore && !_isBusy;
+
+            if (!_canCreateStore)
+                ShowMessage("ليس لديك صلاحية لإضافة متجر.");
+            else
+                MessageLabel.IsVisible = false;
         }
 
         private void OnNameChanged(object sender, TextChangedEventArgs e)
@@ -42,6 +71,9 @@ namespace MPStore.Admin.Views
 
         private async void OnPickImageClicked(object sender, EventArgs e)
         {
+            if (!_canCreateStore || _isBusy)
+                return;
+
             try
             {
                 var result = await FilePicker.Default.PickAsync(new PickOptions
@@ -72,7 +104,7 @@ namespace MPStore.Admin.Views
 
         private async void OnSaveClicked(object sender, EventArgs e)
         {
-            if (_isBusy)
+            if (_isBusy || !_canCreateStore)
                 return;
 
             MessageLabel.IsVisible = false;
@@ -158,7 +190,8 @@ namespace MPStore.Admin.Views
             LoadingIndicator.IsVisible = value;
             LoadingIndicator.IsRunning = value;
 
-            SaveButton.IsEnabled = !value;
+            SaveButton.IsEnabled = _canCreateStore && !value;
+            PickImageButton.IsEnabled = _canCreateStore && !value;
         }
 
         private void ShowMessage(string msg)

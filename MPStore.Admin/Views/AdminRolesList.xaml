@@ -44,6 +44,7 @@
                     TextColor="White"
                     FontAttributes="Bold"
                     VerticalOptions="Center"
+                    IsVisible="{Binding CanCreateAdminRole}"
                     Clicked="OnAddRoleClicked" />
         </Grid>
 
@@ -161,6 +162,7 @@
                                             CornerRadius="12"
                                             BackgroundColor="#EEF2FF"
                                             TextColor="#3730A3"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanManageAdminRolePermissions}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.PermissionsCommand}"
                                             CommandParameter="{Binding .}" />
 
@@ -171,6 +173,7 @@
                                             CornerRadius="12"
                                             BackgroundColor="#DC2626"
                                             TextColor="White"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanDeleteAdminRole}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
                                             CommandParameter="{Binding .}" />
 
@@ -181,6 +184,7 @@
                                             CornerRadius="12"
                                             BackgroundColor="#2563EB"
                                             TextColor="White"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanUpdateAdminRole}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditCommand}"
                                             CommandParameter="{Binding .}" />
                                 </Grid>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MPStore.Admin.Views.AddAdminUser"
+             Title="إضافة أدمن"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F7F8FA"
+             FlowDirection="RightToLeft">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0"
+              Padding="20,18,20,12"
+              ColumnDefinitions="Auto,*"
+              BackgroundColor="White"
+              ColumnSpacing="12">
+
+            <Button Text="رجوع"
+                    HeightRequest="42"
+                    Padding="14,0"
+                    CornerRadius="12"
+                    BackgroundColor="#E5E7EB"
+                    TextColor="#111827"
+                    Clicked="OnBackClicked" />
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="4">
+                <Label Text="إضافة أدمن جديد"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#111827" />
+
+                <Label Text="أدخل بيانات الأدمن ثم احفظها"
+                       FontSize="14"
+                       TextColor="#6B7280" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,14,16,14"
+                                 Spacing="14">
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Label Text="اسم المستخدم"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Border StrokeThickness="0"
+                                BackgroundColor="#F3F4F6"
+                                StrokeShape="RoundRectangle 14">
+                            <Entry x:Name="UsernameEntry"
+                                   Placeholder="أدخل اسم المستخدم"
+                                   HeightRequest="50"
+                                   Margin="12,0"
+                                   BackgroundColor="Transparent"
+                                   TextColor="#111827"
+                                   PlaceholderColor="#9CA3AF"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </Border>
+
+                        <Label Text="كلمة المرور"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Border StrokeThickness="0"
+                                BackgroundColor="#F3F4F6"
+                                StrokeShape="RoundRectangle 14">
+                            <Entry x:Name="PasswordEntry"
+                                   Placeholder="أدخل كلمة المرور"
+                                   IsPassword="True"
+                                   HeightRequest="50"
+                                   Margin="12,0"
+                                   BackgroundColor="Transparent"
+                                   TextColor="#111827"
+                                   PlaceholderColor="#9CA3AF"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </Border>
+
+                        <Label Text="الدور الإداري"
+                               FontSize="14"
+                               TextColor="#374151" />
+
+                        <Border Stroke="#E5E7EB"
+                                StrokeThickness="1"
+                                BackgroundColor="#F8FAFC"
+                                Padding="14,8"
+                                StrokeShape="RoundRectangle 16">
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="10"
+                                  VerticalOptions="Center">
+
+                                <Label Text="▾"
+                                       FontSize="18"
+                                       TextColor="#6B7280"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center" />
+
+                                <Picker x:Name="RolePicker"
+                                        Grid.Column="1"
+                                        Title="اختر الدور الإداري"
+                                        TitleColor="#9CA3AF"
+                                        FontSize="16"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#111827"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Center">
+                                    <Picker.Items>
+                                        <x:String>مدير عام</x:String>
+                                        <x:String>أدمن</x:String>
+                                        <x:String>مشرف</x:String>
+                                    </Picker.Items>
+                                </Picker>
+
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              ColumnSpacing="12"
+                              Margin="0,4,0,0">
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="الحالة"
+                                       FontSize="14"
+                                       TextColor="#374151" />
+                                <Label x:Name="IsActiveTextLabel"
+                                       Text="الأدمن نشط"
+                                       FontSize="13"
+                                       TextColor="#6B7280" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="IsActiveSwitch"
+                                    IsToggled="True"
+                                    VerticalOptions="Center"
+                                    Toggled="OnIsActiveToggled" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="MessageLabel"
+                       IsVisible="False"
+                       FontSize="13"
+                       HorizontalTextAlignment="Center"
+                       TextColor="#DC2626"
+                       Margin="8,0,8,0" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              Padding="16,10,16,18"
+              BackgroundColor="#F7F8FA">
+            <VerticalStackLayout Spacing="10">
+                <Button x:Name="SaveButton"
+                        Text="حفظ الأدمن"
+                        HeightRequest="52"
+                        CornerRadius="14"
+                        BackgroundColor="#2563EB"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveClicked" />
+
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   IsVisible="False"
+                                   IsRunning="False"
+                                   Color="#2563EB"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
+    </Grid>
+</ContentPage>

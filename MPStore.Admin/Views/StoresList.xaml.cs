@@ -13,6 +13,67 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
     private readonly StoresService _storesService;
     private readonly AuthService _authService;
     private bool _isBusy;
+    private bool _permissionsLoaded;
+
+    private bool _canViewAdminUsers;
+    public bool CanViewAdminUsers
+    {
+        get => _canViewAdminUsers;
+        set
+        {
+            if (_canViewAdminUsers == value) return;
+            _canViewAdminUsers = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _canViewAdminRoles;
+    public bool CanViewAdminRoles
+    {
+        get => _canViewAdminRoles;
+        set
+        {
+            if (_canViewAdminRoles == value) return;
+            _canViewAdminRoles = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _canCreateStore;
+    public bool CanCreateStore
+    {
+        get => _canCreateStore;
+        set
+        {
+            if (_canCreateStore == value) return;
+            _canCreateStore = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _canUpdateStore;
+    public bool CanUpdateStore
+    {
+        get => _canUpdateStore;
+        set
+        {
+            if (_canUpdateStore == value) return;
+            _canUpdateStore = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _canDeleteStore;
+    public bool CanDeleteStore
+    {
+        get => _canDeleteStore;
+        set
+        {
+            if (_canDeleteStore == value) return;
+            _canDeleteStore = value;
+            OnPropertyChanged();
+        }
+    }
 
     public ObservableCollection<StoreListItemViewModel> Stores { get; } = new();
 
@@ -40,7 +101,23 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        await EnsurePermissionsLoadedAsync();
         await LoadStoresAsync();
+    }
+
+    private async Task EnsurePermissionsLoadedAsync()
+    {
+        if (_permissionsLoaded)
+            return;
+
+        CanViewAdminUsers = await _authService.HasPermissionAsync("admin_users.view");
+        CanViewAdminRoles = await _authService.HasPermissionAsync("admin_roles.view");
+        CanCreateStore = await _authService.HasPermissionAsync("stores.create");
+        CanUpdateStore = await _authService.HasPermissionAsync("stores.update");
+        CanDeleteStore = await _authService.HasPermissionAsync("stores.delete");
+
+        _permissionsLoaded = true;
     }
 
     private async Task LoadStoresAsync()
@@ -77,7 +154,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
     private async Task GoToEditAsync(StoreListItemViewModel? item)
     {
-        if (item == null || item.Id <= 0)
+        if (item == null || item.Id <= 0 || !CanUpdateStore)
             return;
 
         await Shell.Current.GoToAsync($"{AppShell.RouteEditStore}?storeId={item.Id}");
@@ -85,7 +162,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
     private async Task DeleteStoreAsync(StoreListItemViewModel? item)
     {
-        if (_isBusy || item == null || item.Id <= 0)
+        if (_isBusy || item == null || item.Id <= 0 || !CanDeleteStore)
             return;
 
         var confirm = await DisplayAlert(
@@ -130,6 +207,9 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
     private async void OnAddStoreClicked(object sender, EventArgs e)
     {
+        if (!CanCreateStore)
+            return;
+
         await Shell.Current.GoToAsync(AppShell.RouteAddStore);
     }
 
@@ -200,17 +280,21 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             IsActive = dto.IsActive;
             CreatedAtText = dto.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt");
         }
-
-       
     }
 
     private async void OnAdminUsersClicked(object sender, EventArgs e)
     {
+        if (!CanViewAdminUsers)
+            return;
+
         await Shell.Current.GoToAsync(AppShell.RouteAdminUsersList);
     }
 
     private async void OnAdminRolesClicked(object sender, EventArgs e)
     {
+        if (!CanViewAdminRoles)
+            return;
+
         await Shell.Current.GoToAsync(AppShell.RouteAdminRolesList);
     }
 }

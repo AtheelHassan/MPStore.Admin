@@ -20,7 +20,12 @@ namespace MPStore.Admin.Views
         {
             base.OnAppearing();
 
-            if (_checkedSavedLogin || _navigating || _isBusy)
+            _navigating = false;
+
+            if (_isBusy)
+                return;
+
+            if (_checkedSavedLogin)
                 return;
 
             _checkedSavedLogin = true;
@@ -44,7 +49,7 @@ namespace MPStore.Admin.Views
 
                 _navigating = true;
                 await Task.Delay(150);
-                await Shell.Current.GoToAsync(AppShell.RouteStoresList);
+                await Shell.Current.GoToAsync($"//{AppShell.RouteStoresList}");
             }
             catch
             {
@@ -94,6 +99,7 @@ namespace MPStore.Admin.Views
                     return;
                 }
 
+                _checkedSavedLogin = true;
                 _navigating = true;
 
                 await DisplayAlert("نجاح", "تم تسجيل الدخول بنجاح.", "موافق");

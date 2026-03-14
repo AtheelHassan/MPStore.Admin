@@ -36,7 +36,8 @@
                        TextColor="#6B7280" />
             </VerticalStackLayout>
 
-            <Button Grid.Column="2"
+            <Button x:Name="AddUserButton"
+                    Grid.Column="2"
                     Text="إضافة عامل"
                     HeightRequest="46"
                     Padding="18,0"
@@ -132,15 +133,15 @@
                                            TextColor="#9CA3AF"
                                            VerticalOptions="Center" />
 
-                                    <!--<Button Grid.Column="1"
+                                    <Button Grid.Column="1"
                                             Text="حذف"
                                             HeightRequest="40"
                                             Padding="14,0"
                                             CornerRadius="12"
                                             BackgroundColor="#FEE2E2"
                                             TextColor="#B91C1C"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteCommand}"
-                                            CommandParameter="{Binding .}" />-->
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=CanDeleteStoreUsers}"
+                                            Clicked="OnDelete" />
 
                                     <Button Grid.Column="2"
                                             Text="تعديل"
@@ -149,6 +150,7 @@
                                             CornerRadius="12"
                                             BackgroundColor="#2563EB"
                                             TextColor="White"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=CanUpdateStoreUsers}"
                                             Clicked="OnEdit" />
                                 </Grid>
 
