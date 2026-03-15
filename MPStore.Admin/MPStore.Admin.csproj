@@ -78,7 +78,7 @@
 	  <MauiXaml Update="Views\AddAdminUser.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AddStore.xaml">
+	  <MauiXaml Update="Views\Stores\AddStore.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\AddStoreUser.xaml">
@@ -102,7 +102,7 @@
 	  <MauiXaml Update="Views\EditAdminUser.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\EditStore.xaml">
+	  <MauiXaml Update="Views\Stores\EditStore.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\EditStoreUser.xaml">
@@ -111,7 +111,7 @@
 	  <MauiXaml Update="Views\Login.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\StoresList.xaml">
+	  <MauiXaml Update="Views\Stores\StoresList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\StoreUsersList.xaml">

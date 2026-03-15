@@ -12,6 +12,7 @@ namespace MPStore.Admin.Views
         private bool _canCreateStore;
 
         private string? _selectedImagePath;
+        private List<StoreTypeDto> _storeTypes = new();
 
         public AddStore(StoresService storesService, AuthService authService)
         {
@@ -24,6 +25,7 @@ namespace MPStore.Admin.Views
         {
             base.OnAppearing();
             await LoadPermissionAsync();
+            await LoadStoreTypesAsync();
         }
 
         private async Task LoadPermissionAsync()
@@ -46,20 +48,33 @@ namespace MPStore.Admin.Views
                 MessageLabel.IsVisible = false;
         }
 
+        private async Task LoadStoreTypesAsync()
+        {
+            try
+            {
+                _storeTypes = await _storesService.GetStoreTypesAsync(true);
+
+                StoreTypePicker.ItemsSource = _storeTypes;
+
+                if (_storeTypes.Count > 0)
+                    StoreTypePicker.SelectedIndex = 0;
+            }
+            catch
+            {
+                _storeTypes = new List<StoreTypeDto>();
+                StoreTypePicker.ItemsSource = null;
+            }
+        }
+
         private void OnNameChanged(object sender, TextChangedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(NameEntry.Text))
                 return;
 
             var slug = NameEntry.Text
+                .Trim()
                 .ToLower()
-                .Replace(" ", "-")
-                .Replace("أ", "a")
-                .Replace("إ", "a")
-                .Replace("آ", "a")
-                .Replace("ة", "h")
-                .Replace("ى", "a")
-                .Replace("ي", "y");
+                .Replace(" ", "-");
 
             SlugEntry.Text = slug;
         }
@@ -111,6 +126,7 @@ namespace MPStore.Admin.Views
 
             var name = NameEntry.Text?.Trim() ?? "";
             var slug = SlugEntry.Text?.Trim() ?? "";
+            var selectedStoreType = StoreTypePicker.SelectedItem as StoreTypeDto;
 
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -121,6 +137,12 @@ namespace MPStore.Admin.Views
             if (string.IsNullOrWhiteSpace(slug))
             {
                 ShowMessage("يرجى إدخال Slug المتجر");
+                return;
+            }
+
+            if (selectedStoreType == null)
+            {
+                ShowMessage("يرجى اختيار نوع المتجر");
                 return;
             }
 
@@ -147,6 +169,7 @@ namespace MPStore.Admin.Views
 
                 var request = new CreateStoreRequest
                 {
+                    StoreTypeId = selectedStoreType.Id,
                     Name = name,
                     Slug = slug,
                     Description = DescriptionEditor.Text,
@@ -192,6 +215,7 @@ namespace MPStore.Admin.Views
 
             SaveButton.IsEnabled = _canCreateStore && !value;
             PickImageButton.IsEnabled = _canCreateStore && !value;
+            StoreTypePicker.IsEnabled = _canCreateStore && !value;
         }
 
         private void ShowMessage(string msg)

@@ -14,6 +14,10 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
     private readonly AuthService _authService;
     private bool _isBusy;
     private bool _permissionsLoaded;
+    private bool _filtersVisible;
+
+    private readonly List<StoreDto> _allStores = new();
+    private List<StoreTypeDto> _storeTypes = new();
 
     private bool _canCreateStore;
     public bool CanCreateStore
@@ -72,6 +76,26 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         EditCommand = new Command<StoreListItemViewModel>(async item => await GoToEditAsync(item));
         ViewCommand = new Command<StoreListItemViewModel>(async item => await GoToEditAsync(item));
         DeleteCommand = new Command<StoreListItemViewModel>(async item => await DeleteStoreAsync(item));
+
+        StatusFilterPicker.ItemsSource = new List<string>
+        {
+            "كل الحالات",
+            "نشط فقط",
+            "غير نشط فقط"
+        };
+        StatusFilterPicker.SelectedIndex = 0;
+
+        SortPicker.ItemsSource = new List<string>
+        {
+            "الأحدث أولاً",
+            "الأقدم أولاً",
+            "الاسم أ-ي",
+            "الاسم ي-أ"
+        };
+        SortPicker.SelectedIndex = 0;
+
+        SetFiltersVisibility(false);
+        UpdateFiltersSummary();
     }
 
     protected override async void OnAppearing()
@@ -79,6 +103,7 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         base.OnAppearing();
 
         await EnsurePermissionsLoadedAsync();
+        await LoadStoreTypesAsync();
         await LoadStoresAsync();
     }
 
@@ -94,6 +119,36 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         _permissionsLoaded = true;
     }
 
+    private async Task LoadStoreTypesAsync()
+    {
+        try
+        {
+            _storeTypes = await _storesService.GetStoreTypesAsync(true);
+
+            var items = new List<StoreTypeFilterItem>
+            {
+                new() { Id = 0, Name = "كل الأنواع" }
+            };
+
+            items.AddRange(_storeTypes.Select(x => new StoreTypeFilterItem
+            {
+                Id = x.Id,
+                Name = x.Name
+            }));
+
+            StoreTypeFilterPicker.ItemsSource = items;
+            StoreTypeFilterPicker.SelectedIndex = 0;
+        }
+        catch
+        {
+            StoreTypeFilterPicker.ItemsSource = new List<StoreTypeFilterItem>
+            {
+                new() { Id = 0, Name = "كل الأنواع" }
+            };
+            StoreTypeFilterPicker.SelectedIndex = 0;
+        }
+    }
+
     private async Task LoadStoresAsync()
     {
         if (_isBusy)
@@ -106,14 +161,18 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             ShowMessage(null);
 
             Stores.Clear();
+            _allStores.Clear();
 
             var result = await _storesService.GetStoresAsync();
 
             if (result == null || result.Count == 0)
+            {
+                ApplyFilters();
                 return;
+            }
 
-            foreach (var store in result)
-                Stores.Add(new StoreListItemViewModel(store));
+            _allStores.AddRange(result);
+            ApplyFilters();
         }
         catch (Exception ex)
         {
@@ -124,6 +183,85 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
             SetLoading(false);
             _isBusy = false;
         }
+    }
+
+    private void ApplyFilters()
+    {
+        Stores.Clear();
+
+        IEnumerable<StoreDto> query = _allStores;
+
+        var searchText = SearchEntry.Text?.Trim();
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            query = query.Where(x =>
+                (!string.IsNullOrWhiteSpace(x.Name) && x.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(x.Slug) && x.Slug.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(x.Description) && x.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(x.StoreTypeName) && x.StoreTypeName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(x.StoreTypeCode) && x.StoreTypeCode.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        var selectedType = StoreTypeFilterPicker.SelectedItem as StoreTypeFilterItem;
+        if (selectedType != null && selectedType.Id > 0)
+            query = query.Where(x => x.StoreTypeId == selectedType.Id);
+
+        switch (StatusFilterPicker.SelectedIndex)
+        {
+            case 1:
+                query = query.Where(x => x.IsActive);
+                break;
+            case 2:
+                query = query.Where(x => !x.IsActive);
+                break;
+        }
+
+        query = SortPicker.SelectedIndex switch
+        {
+            1 => query.OrderBy(x => x.CreatedAtUtc),
+            2 => query.OrderBy(x => x.Name),
+            3 => query.OrderByDescending(x => x.Name),
+            _ => query.OrderByDescending(x => x.CreatedAtUtc)
+        };
+
+        foreach (var store in query)
+            Stores.Add(new StoreListItemViewModel(store));
+
+        UpdateFiltersSummary();
+    }
+
+    private void SetFiltersVisibility(bool visible)
+    {
+        _filtersVisible = visible;
+        FiltersPanel.IsVisible = visible;
+        ToggleFiltersButton.Text = visible ? "إخفاء ▲" : "إظهار ▼";
+        UpdateFiltersSummary();
+    }
+
+    private void UpdateFiltersSummary()
+    {
+        var parts = new List<string>();
+
+        var searchText = SearchEntry.Text?.Trim();
+        if (!string.IsNullOrWhiteSpace(searchText))
+            parts.Add($"بحث: {searchText}");
+
+        var selectedType = StoreTypeFilterPicker.SelectedItem as StoreTypeFilterItem;
+        if (selectedType != null && selectedType.Id > 0)
+            parts.Add($"النوع: {selectedType.Name}");
+
+        if (StatusFilterPicker.SelectedIndex == 1)
+            parts.Add("الحالة: نشط فقط");
+        else if (StatusFilterPicker.SelectedIndex == 2)
+            parts.Add("الحالة: غير نشط فقط");
+
+        if (SortPicker.SelectedItem is string sortText && !string.IsNullOrWhiteSpace(sortText))
+            parts.Add($"الترتيب: {sortText}");
+
+        if (parts.Count == 0)
+            FiltersSummaryLabel.Text = _filtersVisible ? "لا توجد فلاتر مفعلة" : "الفلاتر مخفية";
+        else
+            FiltersSummaryLabel.Text = string.Join(" | ", parts);
     }
 
     private async Task GoToEditAsync(StoreListItemViewModel? item)
@@ -162,9 +300,11 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
                 return;
             }
 
-            var existingItem = Stores.FirstOrDefault(x => x.Id == item.Id);
+            var existingItem = _allStores.FirstOrDefault(x => x.Id == item.Id);
             if (existingItem != null)
-                Stores.Remove(existingItem);
+                _allStores.Remove(existingItem);
+
+            ApplyFilters();
 
             await DisplayAlert("نجاح", result.Message, "موافق");
         }
@@ -189,12 +329,38 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
 
     private async void OnRefreshClicked(object sender, EventArgs e)
     {
+        await LoadStoreTypesAsync();
         await LoadStoresAsync();
     }
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync(AppShell.RouteDashboard);
+    }
+
+    private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    {
+        ApplyFilters();
+    }
+
+    private void OnFilterChanged(object sender, EventArgs e)
+    {
+        ApplyFilters();
+    }
+
+    private void OnClearFiltersClicked(object sender, EventArgs e)
+    {
+        SearchEntry.Text = string.Empty;
+        if (StoreTypeFilterPicker.ItemsSource != null)
+            StoreTypeFilterPicker.SelectedIndex = 0;
+        StatusFilterPicker.SelectedIndex = 0;
+        SortPicker.SelectedIndex = 0;
+        ApplyFilters();
+    }
+
+    private void OnToggleFiltersClicked(object sender, EventArgs e)
+    {
+        SetFiltersVisibility(!_filtersVisible);
     }
 
     private void SetLoading(bool isLoading)
@@ -215,9 +381,16 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    public sealed class StoreTypeFilterItem
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
     public sealed class StoreListItemViewModel
     {
         public long Id { get; }
+        public long? StoreTypeId { get; }
         public string Name { get; }
         public string Slug { get; }
         public string Description { get; }
@@ -226,14 +399,19 @@ public partial class StoresList : ContentPage, INotifyPropertyChanged
         public bool IsActive { get; }
         public string IsActiveText => IsActive ? "نشط" : "غير نشط";
         public string CreatedAtText { get; }
+        public string StoreTypeName { get; }
+        public string StoreTypeCode { get; }
 
         public StoreListItemViewModel(StoreDto dto)
         {
             Id = dto.Id;
+            StoreTypeId = dto.StoreTypeId;
             Name = dto.Name ?? string.Empty;
-            Slug = dto.Slug ?? string.Empty;
+            Slug = string.IsNullOrWhiteSpace(dto.Slug) ? "—" : dto.Slug;
             Description = string.IsNullOrWhiteSpace(dto.Description) ? "لا يوجد وصف" : dto.Description;
             Phone = "—";
+            StoreTypeName = string.IsNullOrWhiteSpace(dto.StoreTypeName) ? "بدون نوع" : $"النوع: {dto.StoreTypeName}";
+            StoreTypeCode = string.IsNullOrWhiteSpace(dto.StoreTypeCode) ? string.Empty : $"الكود: {dto.StoreTypeCode}";
 
             if (!string.IsNullOrWhiteSpace(dto.LogoPath))
                 LogoPath = $"{ApiConfig.BaseUrl.TrimEnd('/')}{dto.LogoPath}";

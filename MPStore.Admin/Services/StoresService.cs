@@ -41,6 +41,21 @@ public class StoresService
         return await response.Content.ReadFromJsonAsync<StoreDto>();
     }
 
+    public async Task<List<StoreTypeDto>> GetStoreTypesAsync(bool onlyActive = true)
+    {
+        using var request = await CreateAuthorizedRequestAsync(
+            HttpMethod.Get,
+            $"api/stores/store-types?onlyActive={onlyActive.ToString().ToLowerInvariant()}");
+
+        using var response = await _http.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+            return new List<StoreTypeDto>();
+
+        var result = await response.Content.ReadFromJsonAsync<List<StoreTypeDto>>();
+        return result ?? new List<StoreTypeDto>();
+    }
+
     public async Task<string?> UploadLogoAsync(string filePath, string? storeSlug = null, long? storeId = null)
     {
         try

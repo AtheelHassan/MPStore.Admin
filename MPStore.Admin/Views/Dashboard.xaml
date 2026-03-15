@@ -11,7 +11,6 @@
         <VerticalStackLayout Padding="20"
                              Spacing="20">
 
-            <!-- Header -->
             <Border BackgroundColor="#1e293b"
                     StrokeThickness="0"
                     Padding="20"
@@ -63,9 +62,115 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Statistics Row -->
+            <!-- إحصائيات الموبايل -->
+            <Grid ColumnDefinitions="*,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="14"
+                  RowSpacing="14"
+                  IsVisible="{OnIdiom Phone=true, Tablet=false, Desktop=false}">
+
+                <Border Grid.Row="0"
+                        Grid.Column="0"
+                        BackgroundColor="#1e293b"
+                        StrokeThickness="0"
+                        Padding="16"
+                        MinimumHeightRequest="110"
+                        StrokeShape="RoundRectangle 16">
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="إجمالي المتاجر"
+                               TextColor="White"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               LineBreakMode="WordWrap" />
+
+                        <Label x:Name="StoresCountLabel"
+                               Text="0"
+                               TextColor="#60a5fa"
+                               FontSize="24"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                </Border>
+
+                <Border Grid.Row="0"
+                        Grid.Column="1"
+                        BackgroundColor="#1e293b"
+                        StrokeThickness="0"
+                        Padding="16"
+                        MinimumHeightRequest="110"
+                        StrokeShape="RoundRectangle 16">
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="إجمالي الأدمن"
+                               TextColor="White"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               LineBreakMode="WordWrap" />
+
+                        <Label x:Name="AdminsCountLabel"
+                               Text="0"
+                               TextColor="#34d399"
+                               FontSize="24"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                </Border>
+
+                <Border Grid.Row="1"
+                        Grid.Column="0"
+                        BackgroundColor="#1e293b"
+                        StrokeThickness="0"
+                        Padding="16"
+                        MinimumHeightRequest="110"
+                        StrokeShape="RoundRectangle 16">
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="المتاجر النشطة"
+                               TextColor="White"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               LineBreakMode="WordWrap" />
+
+                        <Label x:Name="ActiveStoresCountLabel"
+                               Text="0"
+                               TextColor="#fbbf24"
+                               FontSize="24"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                </Border>
+
+                <Border Grid.Row="1"
+                        Grid.Column="1"
+                        BackgroundColor="#1e293b"
+                        StrokeThickness="0"
+                        Padding="16"
+                        MinimumHeightRequest="110"
+                        StrokeShape="RoundRectangle 16">
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="الأدمن النشطون"
+                               TextColor="White"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               LineBreakMode="WordWrap" />
+
+                        <Label x:Name="ActiveAdminsCountLabel"
+                               Text="0"
+                               TextColor="#a78bfa"
+                               FontSize="24"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                </Border>
+
+            </Grid>
+
+            <!-- إحصائيات التابلت/الديسكتوب -->
             <Grid ColumnDefinitions="*,*,*,*"
-                  ColumnSpacing="14">
+                  ColumnSpacing="14"
+                  IsVisible="{OnIdiom Phone=false, Tablet=true, Desktop=true}">
 
                 <Border Grid.Column="0"
                         BackgroundColor="#1e293b"
@@ -79,8 +184,7 @@
                                FontSize="16"
                                FontAttributes="Bold" />
 
-                        <Label x:Name="StoresCountLabel"
-                               Text="0"
+                        <Label Text="{Binding Source={x:Reference StoresCountLabel}, Path=Text}"
                                TextColor="#60a5fa"
                                FontSize="24"
                                FontAttributes="Bold" />
@@ -100,8 +204,7 @@
                                FontSize="16"
                                FontAttributes="Bold" />
 
-                        <Label x:Name="AdminsCountLabel"
-                               Text="0"
+                        <Label Text="{Binding Source={x:Reference AdminsCountLabel}, Path=Text}"
                                TextColor="#34d399"
                                FontSize="24"
                                FontAttributes="Bold" />
@@ -121,8 +224,7 @@
                                FontSize="16"
                                FontAttributes="Bold" />
 
-                        <Label x:Name="ActiveStoresCountLabel"
-                               Text="0"
+                        <Label Text="{Binding Source={x:Reference ActiveStoresCountLabel}, Path=Text}"
                                TextColor="#fbbf24"
                                FontSize="24"
                                FontAttributes="Bold" />
@@ -142,8 +244,7 @@
                                FontSize="16"
                                FontAttributes="Bold" />
 
-                        <Label x:Name="ActiveAdminsCountLabel"
-                               Text="0"
+                        <Label Text="{Binding Source={x:Reference ActiveAdminsCountLabel}, Path=Text}"
                                TextColor="#a78bfa"
                                FontSize="24"
                                FontAttributes="Bold" />
@@ -153,16 +254,18 @@
 
             </Grid>
 
-            <!-- Navigation Cards -->
-            <Grid ColumnDefinitions="*,*"
-                  ColumnSpacing="14">
+            <FlexLayout Direction="Row"
+                        Wrap="Wrap"
+                        JustifyContent="Start"
+                        AlignItems="Start">
 
-                <Border Grid.Column="0"
-                        BackgroundColor="#1e293b"
+                <Border BackgroundColor="#1e293b"
                         StrokeThickness="0"
                         Padding="18"
+                        Margin="0,0,14,14"
                         StrokeShape="RoundRectangle 16"
-                        IsVisible="{Binding CanViewStores}">
+                        IsVisible="{Binding CanViewStores}"
+                        WidthRequest="{OnIdiom Phone=360, Tablet=420, Desktop=420}">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnStoresTapped" />
                     </Border.GestureRecognizers>
@@ -185,12 +288,13 @@
 
                 </Border>
 
-                <Border Grid.Column="1"
-                        BackgroundColor="#1e293b"
+                <Border BackgroundColor="#1e293b"
                         StrokeThickness="0"
                         Padding="18"
+                        Margin="0,0,14,14"
                         StrokeShape="RoundRectangle 16"
-                        IsVisible="{Binding CanViewAdminUsers}">
+                        IsVisible="{Binding CanViewAdminUsers}"
+                        WidthRequest="{OnIdiom Phone=360, Tablet=420, Desktop=420}">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnAdminUsersTapped" />
                     </Border.GestureRecognizers>
@@ -213,17 +317,13 @@
 
                 </Border>
 
-            </Grid>
-
-            <Grid ColumnDefinitions="*,*"
-                  ColumnSpacing="14">
-
-                <Border Grid.Column="0"
-                        BackgroundColor="#1e293b"
+                <Border BackgroundColor="#1e293b"
                         StrokeThickness="0"
                         Padding="18"
+                        Margin="0,0,14,14"
                         StrokeShape="RoundRectangle 16"
-                        IsVisible="{Binding CanViewAdminRoles}">
+                        IsVisible="{Binding CanViewAdminRoles}"
+                        WidthRequest="{OnIdiom Phone=360, Tablet=420, Desktop=420}">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnAdminRolesTapped" />
                     </Border.GestureRecognizers>
@@ -246,11 +346,12 @@
 
                 </Border>
 
-                <Border Grid.Column="1"
-                        BackgroundColor="#1e293b"
+                <Border BackgroundColor="#1e293b"
                         StrokeThickness="0"
                         Padding="18"
-                        StrokeShape="RoundRectangle 16">
+                        Margin="0,0,14,14"
+                        StrokeShape="RoundRectangle 16"
+                        WidthRequest="{OnIdiom Phone=360, Tablet=420, Desktop=420}">
 
                     <VerticalStackLayout Spacing="8">
                         <Label Text="الحساب الحالي"
@@ -272,7 +373,7 @@
 
                 </Border>
 
-            </Grid>
+            </FlexLayout>
 
             <ActivityIndicator x:Name="BusyIndicator"
                                IsVisible="False"

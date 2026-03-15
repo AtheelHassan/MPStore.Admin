@@ -4,6 +4,12 @@
     {
         public long Id { get; set; }
 
+        public long StoreTypeId { get; set; }
+
+        public string? StoreTypeName { get; set; }
+
+        public string? StoreTypeCode { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public string Slug { get; set; } = string.Empty;

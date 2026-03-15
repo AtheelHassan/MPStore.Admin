@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MPStore.Admin.Views.AddStore"
-             Title="إضافة متجر"
+             x:Class="MPStore.Admin.Views.EditStore"
+             Title="تعديل متجر"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#F7F8FA"
              FlowDirection="RightToLeft">
@@ -25,12 +25,12 @@
 
             <VerticalStackLayout Grid.Column="1"
                                  Spacing="4">
-                <Label Text="إضافة متجر جديد"
+                <Label Text="تعديل بيانات المتجر"
                        FontSize="28"
                        FontAttributes="Bold"
                        TextColor="#111827" />
 
-                <Label Text="أدخل بيانات المتجر الأساسية ثم احفظها"
+                <Label Text="يمكنك تعديل بيانات المتجر ثم حفظ التغييرات"
                        FontSize="14"
                        TextColor="#6B7280" />
             </VerticalStackLayout>
@@ -46,6 +46,17 @@
                         StrokeShape="RoundRectangle 20">
                     <VerticalStackLayout Spacing="14">
 
+                        <Label Text="نوع المتجر"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Picker x:Name="StoreTypePicker"
+                                Title="اختر نوع المتجر"
+                                ItemDisplayBinding="{Binding Name}"
+                                HeightRequest="70"
+                                BackgroundColor="#F3F4F6"
+                                TitleColor="#9CA3AF"
+                                TextColor="#111827" />
+
                         <Label Text="اسم المتجر"
                                FontSize="14"
                                TextColor="#374151" />
@@ -57,7 +68,7 @@
                                PlaceholderColor="#9CA3AF"
                                TextChanged="OnNameChanged" />
 
-                        <Label Text="Slug"
+                        <Label Text="معرف المتجر"
                                FontSize="14"
                                TextColor="#374151" />
                         <Entry x:Name="SlugEntry"
@@ -198,13 +209,21 @@
               BackgroundColor="#F7F8FA">
             <VerticalStackLayout Spacing="10">
                 <Button x:Name="SaveButton"
-                        Text="حفظ المتجر"
+                        Text="حفظ التعديلات"
                         HeightRequest="52"
                         CornerRadius="14"
                         BackgroundColor="#2563EB"
                         TextColor="White"
                         FontAttributes="Bold"
                         Clicked="OnSaveClicked" />
+
+                <Button Text="إدارة العاملين"
+                        HeightRequest="48"
+                        CornerRadius="14"
+                        BackgroundColor="#059669"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnManageUsersClicked" />
 
                 <ActivityIndicator x:Name="LoadingIndicator"
                                    IsVisible="False"

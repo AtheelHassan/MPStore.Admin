@@ -50,7 +50,7 @@
                                    FontSize="14"
                                    TextColor="#cbd5e1" />
 
-                            <Label Text="يمكنك فتح المتجر وتعديله أو حذفه حسب الصلاحيات"
+                            <Label Text="يمكنك البحث والتصفية حسب الاسم والنوع والحالة"
                                    FontSize="13"
                                    TextColor="#60a5fa" />
                         </VerticalStackLayout>
@@ -88,30 +88,158 @@
                     Padding="16"
                     StrokeShape="RoundRectangle 16">
 
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="12">
+                <VerticalStackLayout Spacing="14">
 
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="قائمة المتاجر"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="White" />
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="12">
 
-                        <Label Text="جميع المتاجر المتاحة في النظام"
-                               FontSize="13"
-                               TextColor="#cbd5e1" />
-                    </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="قائمة المتاجر"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
 
-                    <Button Grid.Column="1"
-                            Text="تحديث"
-                            HeightRequest="42"
-                            Padding="16,0"
-                            CornerRadius="12"
-                            BackgroundColor="#475569"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            Clicked="OnRefreshClicked" />
-                </Grid>
+                            <Label Text="جميع المتاجر المتاحة في النظام"
+                                   FontSize="13"
+                                   TextColor="#cbd5e1" />
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="1"
+                                Text="تحديث"
+                                HeightRequest="42"
+                                Padding="16,0"
+                                CornerRadius="12"
+                                BackgroundColor="#475569"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                Clicked="OnRefreshClicked" />
+                    </Grid>
+
+                    <Entry x:Name="SearchEntry"
+                           Placeholder="ابحث بالاسم أو رابط المتجر أو الوصف أو نوع المتجر"
+                           HeightRequest="50"
+                           BackgroundColor="#334155"
+                           TextColor="White"
+                           PlaceholderColor="#94a3b8"
+                           TextChanged="OnSearchTextChanged" />
+
+                    <Border BackgroundColor="#334155"
+                            StrokeThickness="0"
+                            Padding="12"
+                            StrokeShape="RoundRectangle 14">
+
+                        <VerticalStackLayout Spacing="12">
+
+                            <Grid ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="البحث والفلاتر"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label x:Name="FiltersSummaryLabel"
+                                           Text="الفلاتر مخفية"
+                                           FontSize="12"
+                                           TextColor="#cbd5e1" />
+                                </VerticalStackLayout>
+
+                                <Button x:Name="ToggleFiltersButton"
+                                        Grid.Column="1"
+                                        Text="إظهار ▼"
+                                        HeightRequest="40"
+                                        Padding="14,0"
+                                        CornerRadius="12"
+                                        BackgroundColor="#475569"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        Clicked="OnToggleFiltersClicked" />
+                            </Grid>
+
+                            <VerticalStackLayout x:Name="FiltersPanel"
+                                                 IsVisible="False"
+                                                 Spacing="12">
+
+                                <Grid ColumnDefinitions="*,*"
+                                      ColumnSpacing="12">
+
+                                    <Border BackgroundColor="#1e293b"
+                                            StrokeThickness="0"
+                                            Padding="12,8"
+                                            StrokeShape="RoundRectangle 12">
+                                        <VerticalStackLayout Spacing="6">
+                                            <Label Text="نوع المتجر"
+                                                   FontSize="13"
+                                                   TextColor="#cbd5e1" />
+                                            <Picker x:Name="StoreTypeFilterPicker"
+                                                    Title="اختر النوع"
+                                                    ItemDisplayBinding="{Binding Name}"
+                                                    HeightRequest="50"
+                                                    BackgroundColor="#1e293b"
+                                                    TitleColor="#94a3b8"
+                                                    TextColor="White"
+                                                    SelectedIndexChanged="OnFilterChanged" />
+                                        </VerticalStackLayout>
+                                    </Border>
+
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#1e293b"
+                                            StrokeThickness="0"
+                                            Padding="12,8"
+                                            StrokeShape="RoundRectangle 12">
+                                        <VerticalStackLayout Spacing="6">
+                                            <Label Text="الحالة"
+                                                   FontSize="13"
+                                                   TextColor="#cbd5e1" />
+                                            <Picker x:Name="StatusFilterPicker"
+                                                    Title="اختر الحالة"
+                                                    HeightRequest="50"
+                                                    BackgroundColor="#1e293b"
+                                                    TitleColor="#94a3b8"
+                                                    TextColor="White"
+                                                    SelectedIndexChanged="OnFilterChanged" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,Auto"
+                                      ColumnSpacing="12">
+
+                                    <Border BackgroundColor="#1e293b"
+                                            StrokeThickness="0"
+                                            Padding="12,8"
+                                            StrokeShape="RoundRectangle 12">
+                                        <VerticalStackLayout Spacing="6">
+                                            <Label Text="ترتيب النتائج"
+                                                   FontSize="13"
+                                                   TextColor="#cbd5e1" />
+                                            <Picker x:Name="SortPicker"
+                                                    Title="اختر الترتيب"
+                                                    HeightRequest="50"
+                                                    BackgroundColor="#1e293b"
+                                                    TitleColor="#94a3b8"
+                                                    TextColor="White"
+                                                    SelectedIndexChanged="OnFilterChanged" />
+                                        </VerticalStackLayout>
+                                    </Border>
+
+                                    <Button Grid.Column="1"
+                                            Text="مسح"
+                                            HeightRequest="50"
+                                            WidthRequest="100"
+                                            CornerRadius="14"
+                                            BackgroundColor="#475569"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            Clicked="OnClearFiltersClicked" />
+                                </Grid>
+
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                </VerticalStackLayout>
             </Border>
 
             <CollectionView x:Name="StoresCollectionView"
@@ -129,7 +257,7 @@
                                TextColor="White"
                                HorizontalTextAlignment="Center" />
 
-                        <Label Text="أضف أول متجر ليظهر هنا"
+                        <Label Text="جرّب تغيير البحث أو الفلاتر أو أضف متجرًا جديدًا"
                                FontSize="14"
                                TextColor="#cbd5e1"
                                HorizontalTextAlignment="Center" />
@@ -178,6 +306,10 @@
                                            FontSize="13"
                                            TextColor="#cbd5e1" />
 
+                                    <Label Text="{Binding StoreTypeName}"
+                                           FontSize="12"
+                                           TextColor="#93c5fd" />
+
                                 </VerticalStackLayout>
 
                                 <Border Grid.Row="0"
@@ -207,7 +339,7 @@
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2" />
 
-                                    <Label Text="{Binding Phone}"
+                                    <Label Text="{Binding StoreTypeCode}"
                                            FontSize="13"
                                            TextColor="#cbd5e1" />
 

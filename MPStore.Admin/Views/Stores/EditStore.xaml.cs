@@ -13,6 +13,7 @@ namespace MPStore.Admin.Views
         private long _storeId;
         private StoreDto? _currentStore;
         private string? _selectedImagePath;
+        private List<StoreTypeDto> _storeTypes = new();
 
         public string? StoreId
         {
@@ -34,8 +35,28 @@ namespace MPStore.Admin.Views
         {
             base.OnAppearing();
 
-            if (_currentStore == null && _storeId > 0)
+            if (_storeId <= 0)
+                return;
+
+            if (_storeTypes.Count == 0)
+                await LoadStoreTypesAsync();
+
+            if (_currentStore == null)
                 await LoadStoreAsync();
+        }
+
+        private async Task LoadStoreTypesAsync()
+        {
+            try
+            {
+                _storeTypes = await _storesService.GetStoreTypesAsync(true);
+                StoreTypePicker.ItemsSource = _storeTypes;
+            }
+            catch
+            {
+                _storeTypes = new List<StoreTypeDto>();
+                StoreTypePicker.ItemsSource = null;
+            }
         }
 
         private async Task LoadStoreAsync()
@@ -68,6 +89,13 @@ namespace MPStore.Admin.Views
                 LogoUrlEntry.Text = store.LogoPath ?? string.Empty;
                 IsActiveSwitch.IsToggled = store.IsActive;
                 IsActiveTextLabel.Text = store.IsActive ? "المتجر نشط" : "المتجر متوقف";
+
+                if (_storeTypes.Count > 0)
+                {
+                    var selectedType = _storeTypes.FirstOrDefault(x => x.Id == store.StoreTypeId);
+                    if (selectedType != null)
+                        StoreTypePicker.SelectedItem = selectedType;
+                }
 
                 if (!string.IsNullOrWhiteSpace(store.LogoPath))
                 {
@@ -149,6 +177,7 @@ namespace MPStore.Admin.Views
 
             var name = NameEntry.Text?.Trim() ?? string.Empty;
             var slug = SlugEntry.Text?.Trim() ?? string.Empty;
+            var selectedStoreType = StoreTypePicker.SelectedItem as StoreTypeDto;
 
             if (_storeId <= 0)
             {
@@ -165,6 +194,12 @@ namespace MPStore.Admin.Views
             if (string.IsNullOrWhiteSpace(slug))
             {
                 ShowMessage("يرجى إدخال Slug المتجر.");
+                return;
+            }
+
+            if (selectedStoreType == null)
+            {
+                ShowMessage("يرجى اختيار نوع المتجر.");
                 return;
             }
 
@@ -188,6 +223,7 @@ namespace MPStore.Admin.Views
                 var request = new UpdateStoreRequest
                 {
                     StoreId = _storeId,
+                    StoreTypeId = selectedStoreType.Id,
                     Name = name,
                     Slug = slug,
                     Description = DescriptionEditor.Text?.Trim(),
@@ -237,6 +273,7 @@ namespace MPStore.Admin.Views
             LogoUrlEntry.IsEnabled = !value;
             PickImageButton.IsEnabled = !value;
             IsActiveSwitch.IsEnabled = !value;
+            StoreTypePicker.IsEnabled = !value;
         }
 
         private void ShowMessage(string message)
@@ -262,44 +299,6 @@ namespace MPStore.Admin.Views
         private static string GenerateSlug(string text)
         {
             var value = text.Trim().ToLowerInvariant();
-
-            value = value
-                .Replace("أ", "a")
-                .Replace("إ", "a")
-                .Replace("آ", "a")
-                .Replace("ا", "a")
-                .Replace("ب", "b")
-                .Replace("ت", "t")
-                .Replace("ث", "th")
-                .Replace("ج", "j")
-                .Replace("ح", "h")
-                .Replace("خ", "kh")
-                .Replace("د", "d")
-                .Replace("ذ", "th")
-                .Replace("ر", "r")
-                .Replace("ز", "z")
-                .Replace("س", "s")
-                .Replace("ش", "sh")
-                .Replace("ص", "s")
-                .Replace("ض", "d")
-                .Replace("ط", "t")
-                .Replace("ظ", "z")
-                .Replace("ع", "a")
-                .Replace("غ", "gh")
-                .Replace("ف", "f")
-                .Replace("ق", "q")
-                .Replace("ك", "k")
-                .Replace("ل", "l")
-                .Replace("م", "m")
-                .Replace("ن", "n")
-                .Replace("ه", "h")
-                .Replace("ة", "h")
-                .Replace("و", "w")
-                .Replace("ي", "y")
-                .Replace("ى", "a")
-                .Replace("ء", "")
-                .Replace("ؤ", "w")
-                .Replace("ئ", "y");
 
             value = string.Join("-", value
                 .Split(new[] { ' ', '_', '/', '\\', '.', ',', ';', ':', '|', '+' }, StringSplitOptions.RemoveEmptyEntries));
