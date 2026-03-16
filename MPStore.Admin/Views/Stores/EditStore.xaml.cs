@@ -79,14 +79,14 @@ namespace MPStore.Admin.Views
 
                 _currentStore = store;
 
-                NameEntry.Text = store.Name ?? string.Empty;
-                SlugEntry.Text = store.Slug ?? string.Empty;
-                DescriptionEditor.Text = store.Description ?? string.Empty;
+                NameEntry.Text = store.Name ?? "";
+                SlugEntry.Text = store.Slug ?? "";
+                DescriptionEditor.Text = store.Description ?? "";
 
-                PhoneEntry.Text = string.Empty;
-                EmailEntry.Text = string.Empty;
+                PhoneEntry.Text = "";
+                EmailEntry.Text = "";
 
-                LogoUrlEntry.Text = store.LogoPath ?? string.Empty;
+                LogoUrlEntry.Text = store.LogoPath ?? "";
                 IsActiveSwitch.IsToggled = store.IsActive;
                 IsActiveTextLabel.Text = store.IsActive ? "المتجر نشط" : "المتجر متوقف";
 
@@ -168,6 +168,14 @@ namespace MPStore.Admin.Views
             }
         }
 
+        private async void OnOpenDetailsClicked(object sender, EventArgs e)
+        {
+            if (_storeId <= 0)
+                return;
+
+            await Shell.Current.GoToAsync($"{AppShell.RouteAddStoreDetails}?storeId={_storeId}");
+        }
+
         private async void OnSaveClicked(object sender, EventArgs e)
         {
             if (_isBusy)
@@ -175,8 +183,8 @@ namespace MPStore.Admin.Views
 
             HideMessage();
 
-            var name = NameEntry.Text?.Trim() ?? string.Empty;
-            var slug = SlugEntry.Text?.Trim() ?? string.Empty;
+            var name = NameEntry.Text?.Trim() ?? "";
+            var slug = SlugEntry.Text?.Trim() ?? "";
             var selectedStoreType = StoreTypePicker.SelectedItem as StoreTypeDto;
 
             if (_storeId <= 0)
@@ -240,6 +248,7 @@ namespace MPStore.Admin.Views
                 }
 
                 await DisplayAlert("نجاح", "تم تحديث بيانات المتجر بنجاح.", "موافق");
+
                 await Shell.Current.GoToAsync(AppShell.RouteStoresList);
             }
             catch (Exception ex)
@@ -284,7 +293,7 @@ namespace MPStore.Admin.Views
 
         private void HideMessage()
         {
-            MessageLabel.Text = string.Empty;
+            MessageLabel.Text = "";
             MessageLabel.IsVisible = false;
         }
 

@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MPStore.Admin.Views.AddStoreDetails"
+             Title="تفاصيل المتجر"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F7F8FA"
+             FlowDirection="RightToLeft">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0"
+              Padding="20,18,20,12"
+              ColumnDefinitions="Auto,*"
+              ColumnSpacing="12"
+              BackgroundColor="White">
+
+            <Button Text="رجوع"
+                    HeightRequest="42"
+                    Padding="14,0"
+                    CornerRadius="12"
+                    BackgroundColor="#E5E7EB"
+                    TextColor="#111827"
+                    Clicked="OnBackClicked" />
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="4">
+                <Label Text="تفاصيل المتجر المتقدمة"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#111827" />
+
+                <Label Text="أدخل التفاصيل الإضافية الخاصة بالمتجر ثم احفظها"
+                       FontSize="14"
+                       TextColor="#6B7280" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,14,16,14"
+                                 Spacing="14">
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Label Text="اسم صاحب المتجر"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="OwnerNameEntry"
+                               Placeholder="أدخل اسم صاحب المتجر"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="الاسم القانوني"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="LegalNameEntry"
+                               Placeholder="الاسم الرسمي أو القانوني للمتجر"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="وصف مختصر"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Editor x:Name="ShortDescriptionEditor"
+                                Placeholder="وصف مختصر يظهر في البطاقات أو القوائم"
+                                AutoSize="TextChanges"
+                                MinimumHeightRequest="90"
+                                BackgroundColor="#F3F4F6"
+                                TextColor="#111827"
+                                PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رقم واتساب"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="WhatsAppNumberEntry"
+                               Placeholder="أدخل رقم واتساب"
+                               Keyboard="Telephone"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="الموقع الإلكتروني"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="WebsiteUrlEntry"
+                               Placeholder="https://example.com"
+                               Keyboard="Url"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Label Text="الدولة"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="CountryEntry"
+                               Placeholder="مثال: العراق"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="المدينة"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="CityEntry"
+                               Placeholder="مثال: بغداد"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="المنطقة / المحافظة"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="RegionEntry"
+                               Placeholder="أدخل المنطقة أو المحافظة"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="العنوان الأول"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="AddressLine1Entry"
+                               Placeholder="أدخل العنوان الرئيسي"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="العنوان الثاني"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="AddressLine2Entry"
+                               Placeholder="تفاصيل إضافية للعنوان"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="الرمز البريدي"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="PostalCodeEntry"
+                               Placeholder="أدخل الرمز البريدي"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Button x:Name="GetCurrentLocationButton"
+                                Text="جلب الموقع الحالي"
+                                HeightRequest="48"
+                                CornerRadius="14"
+                                BackgroundColor="#DBEAFE"
+                                TextColor="#1D4ED8"
+                                FontAttributes="Bold"
+                                Clicked="OnGetCurrentLocationClicked" />
+
+                        <Label x:Name="LocationStatusLabel"
+                               Text="يمكنك جلب الإحداثيات من GPS أو تعديلها يدويًا"
+                               FontSize="13"
+                               TextColor="#6B7280"
+                               HorizontalTextAlignment="Center" />
+
+                        <Grid ColumnDefinitions="*,*"
+                              ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="خط العرض Latitude"
+                                       FontSize="14"
+                                       TextColor="#374151" />
+                                <Entry x:Name="LatitudeEntry"
+                                       Placeholder="مثال: 33.3152"
+                                       Keyboard="Numeric"
+                                       HeightRequest="50"
+                                       BackgroundColor="#F3F4F6"
+                                       TextColor="#111827"
+                                       PlaceholderColor="#9CA3AF" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="8">
+                                <Label Text="خط الطول Longitude"
+                                       FontSize="14"
+                                       TextColor="#374151" />
+                                <Entry x:Name="LongitudeEntry"
+                                       Placeholder="مثال: 44.3661"
+                                       Keyboard="Numeric"
+                                       HeightRequest="50"
+                                       BackgroundColor="#F3F4F6"
+                                       TextColor="#111827"
+                                       PlaceholderColor="#9CA3AF" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Label Text="صورة الغلاف"
+                               FontSize="14"
+                               TextColor="#374151" />
+
+                        <Border StrokeThickness="0"
+                                BackgroundColor="#F3F4F6"
+                                Padding="12"
+                                StrokeShape="RoundRectangle 16">
+                            <VerticalStackLayout Spacing="12">
+
+                                <Grid ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="12">
+                                    <Button x:Name="PickCoverImageButton"
+                                            Text="اختيار صورة"
+                                            HeightRequest="46"
+                                            Padding="18,0"
+                                            CornerRadius="12"
+                                            BackgroundColor="#2563EB"
+                                            TextColor="White"
+                                            FontAttributes="Bold"
+                                            Clicked="OnPickCoverImageClicked" />
+
+                                    <Label x:Name="SelectedCoverImageNameLabel"
+                                           Grid.Column="1"
+                                           Text="لم يتم اختيار صورة غلاف بعد"
+                                           FontSize="13"
+                                           TextColor="#6B7280"
+                                           VerticalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation" />
+                                </Grid>
+
+                                <Border Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White"
+                                        Padding="8"
+                                        StrokeShape="RoundRectangle 14"
+                                        HeightRequest="180">
+                                    <Grid>
+                                        <Image x:Name="CoverPreviewImage"
+                                               Aspect="AspectFit"
+                                               IsVisible="False" />
+
+                                        <Label x:Name="NoCoverImageLabel"
+                                               Text="معاينة صورة الغلاف ستظهر هنا"
+                                               FontSize="13"
+                                               TextColor="#9CA3AF"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               HorizontalTextAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <Entry x:Name="CoverImagePathEntry"
+                                       IsVisible="False"
+                                       HeightRequest="1"
+                                       Opacity="0"
+                                       InputTransparent="True" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label Text="الرقم الضريبي"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="TaxNumberEntry"
+                               Placeholder="أدخل الرقم الضريبي"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رقم السجل التجاري"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="CommercialRegistrationNoEntry"
+                               Placeholder="أدخل رقم السجل التجاري"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="ساعات العمل (JSON)"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Editor x:Name="WorkingHoursJsonEditor"
+                                Placeholder='مثال: {"sat":"9-5","sun":"9-5"}'
+                                AutoSize="TextChanges"
+                                MinimumHeightRequest="100"
+                                BackgroundColor="#F3F4F6"
+                                TextColor="#111827"
+                                PlaceholderColor="#9CA3AF" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Label Text="رابط فيسبوك"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="FacebookUrlEntry"
+                               Placeholder="https://facebook.com/..."
+                               Keyboard="Url"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رابط إنستغرام"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="InstagramUrlEntry"
+                               Placeholder="https://instagram.com/..."
+                               Keyboard="Url"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رابط تيليغرام"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="TelegramUrlEntry"
+                               Placeholder="https://t.me/..."
+                               Keyboard="Url"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                        <Label Text="رابط X"
+                               FontSize="14"
+                               TextColor="#374151" />
+                        <Entry x:Name="XUrlEntry"
+                               Placeholder="https://x.com/..."
+                               Keyboard="Url"
+                               HeightRequest="50"
+                               BackgroundColor="#F3F4F6"
+                               TextColor="#111827"
+                               PlaceholderColor="#9CA3AF" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeThickness="0"
+                        BackgroundColor="White"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="متجر موثق"
+                                       FontSize="14"
+                                       TextColor="#374151" />
+                                <Label x:Name="IsVerifiedTextLabel"
+                                       Text="المتجر غير موثق"
+                                       FontSize="13"
+                                       TextColor="#6B7280" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="IsVerifiedSwitch"
+                                    IsToggled="False"
+                                    VerticalOptions="Center"
+                                    Toggled="OnIsVerifiedToggled" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="متجر مميز"
+                                       FontSize="14"
+                                       TextColor="#374151" />
+                                <Label x:Name="IsFeaturedTextLabel"
+                                       Text="المتجر غير مميز"
+                                       FontSize="13"
+                                       TextColor="#6B7280" />
+                            </VerticalStackLayout>
+
+                            <Switch x:Name="IsFeaturedSwitch"
+                                    IsToggled="False"
+                                    VerticalOptions="Center"
+                                    Toggled="OnIsFeaturedToggled" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="MessageLabel"
+                       IsVisible="False"
+                       FontSize="13"
+                       HorizontalTextAlignment="Center"
+                       TextColor="#DC2626"
+                       Margin="8,0,8,0" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              Padding="16,10,16,18"
+              BackgroundColor="#F7F8FA">
+            <VerticalStackLayout Spacing="10">
+                <Button x:Name="SaveButton"
+                        Text="حفظ التفاصيل"
+                        HeightRequest="52"
+                        CornerRadius="14"
+                        BackgroundColor="#2563EB"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveClicked" />
+
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   IsVisible="False"
+                                   IsRunning="False"
+                                   Color="#2563EB"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
+    </Grid>
+</ContentPage>

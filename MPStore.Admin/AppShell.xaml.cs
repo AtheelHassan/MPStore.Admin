@@ -8,6 +8,7 @@ namespace MPStore.Admin
 
         public const string RouteStoresList = "stores-list";
         public const string RouteAddStore = "add-store";
+        public const string RouteAddStoreDetails = "add-store-details";
         public const string RouteEditStore = "edit-store";
 
         public const string RouteStoreUsersList = "store-users-list";
@@ -31,6 +32,7 @@ namespace MPStore.Admin
 
             Routing.RegisterRoute(RouteStoresList, typeof(StoresList));
             Routing.RegisterRoute(RouteAddStore, typeof(AddStore));
+            Routing.RegisterRoute(RouteAddStoreDetails, typeof(AddStoreDetails));
             Routing.RegisterRoute(RouteEditStore, typeof(EditStore));
 
             Routing.RegisterRoute(RouteStoreUsersList, typeof(StoreUsersList));

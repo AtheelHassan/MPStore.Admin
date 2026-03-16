@@ -171,6 +171,15 @@
                             </VerticalStackLayout>
                         </Border>
 
+                        <Button x:Name="OpenDetailsButton"
+                                Text="إضافة التفاصيل المتقدمة"
+                                HeightRequest="50"
+                                CornerRadius="14"
+                                BackgroundColor="#EEF2FF"
+                                TextColor="#1D4ED8"
+                                FontAttributes="Bold"
+                                Clicked="OnOpenDetailsClicked" />
+
                         <Grid ColumnDefinitions="*,Auto"
                               ColumnSpacing="12"
                               Margin="0,4,0,0">

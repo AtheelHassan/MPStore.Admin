@@ -102,6 +102,9 @@
 	  <MauiXaml Update="Views\EditAdminUser.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Stores\AddStoreDetails.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Stores\EditStore.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -102,6 +102,51 @@ public class StoresService
         }
     }
 
+    public async Task<string?> UploadCoverAsync(string filePath, string? storeSlug = null, long? storeId = null)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+
+            await using var fileStream = File.OpenRead(filePath);
+            using var fileContent = new StreamContent(fileStream);
+
+            var extension = Path.GetExtension(filePath)?.ToLowerInvariant();
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                ".gif" => "image/gif",
+                ".svg" => "image/svg+xml",
+                _ => "application/octet-stream"
+            };
+
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+            content.Add(fileContent, "file", Path.GetFileName(filePath));
+
+            if (!string.IsNullOrWhiteSpace(storeSlug))
+                content.Add(new StringContent(storeSlug.Trim()), "storeSlug");
+
+            if (storeId.HasValue && storeId.Value > 0)
+                content.Add(new StringContent(storeId.Value.ToString()), "storeId");
+
+            using var request = await CreateAuthorizedRequestAsync(HttpMethod.Post, "api/stores/upload-cover", content);
+            using var response = await _http.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var result = await response.Content.ReadFromJsonAsync<UploadCoverResponse>();
+            return result?.CoverImagePath;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<ServiceResult> CreateStoreAsync(CreateStoreRequest requestModel)
     {
         try
@@ -230,6 +275,12 @@ public class StoresService
     {
         [JsonPropertyName("logoPath")]
         public string? LogoPath { get; set; }
+    }
+
+    private sealed class UploadCoverResponse
+    {
+        [JsonPropertyName("coverImagePath")]
+        public string? CoverImagePath { get; set; }
     }
 
     private sealed class ApiErrorResponse
