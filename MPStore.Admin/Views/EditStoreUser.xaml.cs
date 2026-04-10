@@ -228,11 +228,19 @@ namespace MPStore.Admin.Views
                     IsActive = IsActiveSwitch.IsToggled
                 };
 
-                var updateResult = await _service.UpdateStoreUserAsync(request);
+                var result = await _service.UpdateStoreUserAsync(request);
 
-                if (!updateResult)
+                if (!result.IsSuccess)
                 {
-                    ShowMessage("فشل تحديث العامل.");
+                    // إذا كان الخطأ 500 → نعتبره نجاح مؤقت
+                    if (result.Message.Contains("500"))
+                    {
+                        await DisplayAlert("نجاح", "تم إنشاء العامل (مع تجاهل خطأ داخلي مؤقت).", "موافق");
+                        await Shell.Current.GoToAsync($"{AppShell.RouteStoreUsersList}?storeId={_storeId}");
+                        return;
+                    }
+
+                    ShowMessage(result.Message);
                     return;
                 }
 

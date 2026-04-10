@@ -2,7 +2,8 @@
 {
     public static class ApiConfig
     {
-        public const string BaseUrl = "http://192.168.1.26:5000/";
+        // ✅ السيرفر الجديد
+        public const string BaseUrl = "https://store-api.missionposs.com/";
 
         public const string AdminLogin = "api/admin-auth/login";
         public const string Stores = "api/stores";

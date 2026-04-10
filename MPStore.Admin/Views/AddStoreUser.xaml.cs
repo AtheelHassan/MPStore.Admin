@@ -188,9 +188,9 @@ namespace MPStore.Admin.Views
 
                 var result = await _storeUsersService.CreateStoreUserAsync(request);
 
-                if (!result)
+                if (!result.IsSuccess)
                 {
-                    ShowMessage("فشل حفظ العامل.");
+                    ShowMessage(result.Message);
                     return;
                 }
 
